@@ -20,6 +20,9 @@ boltzmannTest.entities_tibble(entities, G, eta, nested = NULL, maxit = 10000L, c
   }
   if (!is.null(nested)){
     nested <- as.vector(nested)
+    if (any(nested) < 1 || any(nested) > NROW(G)){
+      stop("the indices of the nested conditions are out of range")
+    }
   }
   ## 1. project empirical distribution to hypothesis linear family
   h <- iProjector(G = G, eta = eta, v = empirical(entities), maxit = maxit, convTolerance = convTolerance)
