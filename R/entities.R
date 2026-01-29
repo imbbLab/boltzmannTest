@@ -127,6 +127,7 @@ entities_tibble <- function(data){
 #' @param ... additional parameters
 #'
 #' @importFrom dplyr dplyr_row_slice
+#' @noRd
 #' @export
 
 dplyr_row_slice.entities_tibble <- function(object, i, ...) {
@@ -158,7 +159,7 @@ dplyr_row_slice.entities_tibble <- function(object, i, ...) {
 #' @param object an `entities_tibble` object
 #' @param i row indices or logical vector of length `nrow(object)`
 #' @param j col indices, names, or logical vector of length `ncol(object)`
-#' @param drop logical. If `TRUE`, simplifies the result if possible. Defaults to `FALSE`
+#' @param drop logical (default = FALSE). If `TRUE`, simplifies the result if possible.
 #' @details
 #' - When subsetting rows, the relative frequencies (`empirical`) are **renormalized**
 #'   to sum to 1 for the selected rows.

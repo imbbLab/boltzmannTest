@@ -2,7 +2,7 @@
 #include "RcppArmadillo.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
-
+// todo: return the values of the lagrange multipliers
 // [[Rcpp::export]]
 Rcpp::List iProjector_cpp(const arma::mat& G, const arma::vec& eta, const arma::vec& v, arma::uword maxit, double convTolerance){
    // initialize at the reference distribution
