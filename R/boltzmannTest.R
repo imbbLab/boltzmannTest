@@ -32,6 +32,15 @@ boltzmannTest.entities_tibble(entities, G, eta, nested = NULL, maxit = 10000L, c
     if (!is.null(nested)){
 
     }
+    a <- if(any(h$p < convTolerance)){
+      warning("hypothesis conditions lead to zero probabilities")
+      notNull <- which(!h$p < convTolerance)
+
+      iProjector(G[, notNull], G %*% empirical(entities), v = h$p[notNull], maxit = maxit, convTolerance = convTolerance)
+    } else{
+      iProjector(G, G %*% empirical(entities), v = h$p, maxit = maxit, convTolerance = convTolerance)
+    }
+
   }
 
 
