@@ -14,7 +14,7 @@ boltzmannTest <- function(x, ...) UseMethod("boltzmannTest")
 ## 4. project a_k to A: G * p = mu -> f
 
 #' @export
-boltzmannTest.entities_tibble(entities, G, eta, nested = NULL, maxit = 10000L, convTolerance = .Machine$double.eps){
+boltzmannTest.entities_tibble <-function(entities, G, eta, nested = NULL, strict = FALSE, maxit = 10000L, convTolerance = .Machine$double.eps){
   if (NCOL(G) != length(eta)){
     stop("the number of constraints ")
   }
@@ -32,14 +32,28 @@ boltzmannTest.entities_tibble(entities, G, eta, nested = NULL, maxit = 10000L, c
     if (!is.null(nested)){
 
     }
+    notNull <- which(!h$p < convTolerance)
     a <- if(any(h$p < convTolerance)){
       warning("hypothesis conditions lead to zero probabilities")
-      notNull <- which(!h$p < convTolerance)
-
       iProjector(G[, notNull], G %*% empirical(entities), v = h$p[notNull], maxit = maxit, convTolerance = convTolerance)
     } else{
-      iProjector(G, G %*% empirical(entities), v = h$p, maxit = maxit, convTolerance = convTolerance)
+      res <- list(
+        p = empirical(entities),
+        converged = 1,
+        iter = 0,
+        error = ""
+      )
+      class(res) = "iprojection"
+      res
     }
+
+    idiv <- iDivergence(a$p, h$p)
+
+    statistic <- 2 * sampleSize(entities) * idiv
+    df = 1
+    p.value = pchisq(statistic, df = df, lower.tail = FALSE)
+
+
 
   }
 

@@ -5,3 +5,15 @@ iProjector_cpp <- function(G, eta, v, maxit, convTolerance) {
     .Call(`_boltzmannTest_iProjector_cpp`, G, eta, v, maxit, convTolerance)
 }
 
+matrix_hasFullRowRank_cpp <- function(G, tol) {
+    .Call(`_boltzmannTest_matrix_hasFullRowRank_cpp`, G, tol)
+}
+
+eta_isFeasible_cpp <- function(G, eta, tol) {
+    .Call(`_boltzmannTest_eta_isFeasible_cpp`, G, eta, tol)
+}
+
+startAndBars <- function(N, k) {
+    .Call(`_boltzmannTest_startAndBars`, N, k)
+}
+

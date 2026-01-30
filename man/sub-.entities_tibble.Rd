@@ -13,7 +13,7 @@
 
 \item{j}{col indices, names, or logical vector of length `ncol(object)`}
 
-\item{drop}{logical. If `TRUE`, simplifies the result if possible. Defaults to `FALSE`}
+\item{drop}{logical (default = FALSE). If `TRUE`, simplifies the result if possible.}
 }
 \value{
 An `entities_tibble` object with updated `empirical` and `sampleSize` attributes.

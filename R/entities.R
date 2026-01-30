@@ -225,7 +225,7 @@ sampleSize.entities_tibble <- function(object){
 #' @return Function prints to console
 #' @export
 print.entities_tibble <- function(object, ...) {
-  validate_entities(object)
+  validate_entities_tibble(object)
   # Create display tibble
   tbl <- as_tibble(object)
   empirical <- attr(object, "empirical", exact = TRUE)

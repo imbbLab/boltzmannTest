@@ -1,4 +1,7 @@
-#' Compute the I-projection of v onto the linear family G p = eta
+#' Compute the I-projection
+#'
+#' Computes the I-projection of v onto the linear family G p = eta. Throws a warning if any condition cannot be met and returns the
+#' reference distribution `v`.
 #'
 #' @param G matrix with `nrow(G)` constraints (including normalization) for `ncol(G)` entities
 #' @param eta vector with one value for each row of `G`
@@ -30,17 +33,34 @@ iProjector <- function(G, eta, v, maxit = 10000L, convTolerance = .Machine$doubl
   if (NROW(G) != length(eta)){
     stop("`eta` must have one value per row of `G`")
   }
-  if (NCOL(G) != lenght(v)){
+  if (NCOL(G) != length(v)){
     stop("`v` must have one value per column of `G`")
   }
 
-  if (! any(apply(G, 1, function(x) all(x) == 1)) || ! any(eta == 1)){
+  ## check for the normalization condition
+  if (! any(apply(G, 1, function(x) all(x == 1))) || ! any(eta == 1)){
     stop("normalization condition is missing")
   }
-
-  res <- iProjector_cpp(G, eta, v, maxit, convTolerance)
-  class(res) <- "iprojection"
-  res
+  ## check whether G has full row rank
+  if (! matrix_hasFullRowRank(G)){
+    stop("`G` has not full row rank")
+  }
+  ## check whether eta is a feasible solution
+  if (eta_isFeasible(G, eta)){
+    res <- iProjector_cpp(G, eta, v, maxit, convTolerance)
+    class(res) <- "iprojection"
+    res
+  } else{
+    warning("`eta` is not a feasible")
+    res <- list(
+      p = v,
+      converged = 0,
+      iter = NA,
+      error = ""
+    )
+    class(res) = "iprojection"
+    res
+  }
 }
 
 #' @export
@@ -56,10 +76,10 @@ iDivergence <- function(p, q, tolerance = .Machine$double.eps){
   if (!is.numeric(q) || !is.atomic(q)){
     stop("`q` must be a numeric vector")
   }
-  if (any(p) < 0){
+  if (any(p < 0)){
     stop("`p` must be non-negative")
   }
-  if (any(q) < .tolerance){
+  if (any(q < tolerance)){
     stop("`q` must be positive")
   }
   if(abs(sum(p) - 1) > sqrt(tolerance)){
