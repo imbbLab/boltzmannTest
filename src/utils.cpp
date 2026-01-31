@@ -60,3 +60,4 @@ arma::imat startAndBars(arma::uword N, arma::uword k){
   return res;
 
 }
+
