@@ -63,12 +63,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// which_approx_equal_cpp
+Rcpp::LogicalVector which_approx_equal_cpp(const Rcpp::NumericVector& a, const Rcpp::NumericVector& b, double tol, bool reldiff);
+RcppExport SEXP _boltzmannTest_which_approx_equal_cpp(SEXP aSEXP, SEXP bSEXP, SEXP tolSEXP, SEXP reldiffSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type reldiff(reldiffSEXP);
+    rcpp_result_gen = Rcpp::wrap(which_approx_equal_cpp(a, b, tol, reldiff));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_boltzmannTest_iProjector_cpp", (DL_FUNC) &_boltzmannTest_iProjector_cpp, 5},
     {"_boltzmannTest_matrix_hasFullRowRank_cpp", (DL_FUNC) &_boltzmannTest_matrix_hasFullRowRank_cpp, 2},
     {"_boltzmannTest_eta_isFeasible_cpp", (DL_FUNC) &_boltzmannTest_eta_isFeasible_cpp, 3},
     {"_boltzmannTest_startAndBars", (DL_FUNC) &_boltzmannTest_startAndBars, 2},
+    {"_boltzmannTest_which_approx_equal_cpp", (DL_FUNC) &_boltzmannTest_which_approx_equal_cpp, 4},
     {NULL, NULL, 0}
 };
 

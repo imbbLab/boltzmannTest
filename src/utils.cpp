@@ -2,7 +2,6 @@
 #include "RcppArmadillo.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
-
 // [[Rcpp::export]]
 bool matrix_hasFullRowRank_cpp(const arma::mat& G, double tol) {
   if (G.n_rows > G.n_cols) return false;
@@ -61,3 +60,43 @@ arma::imat startAndBars(arma::uword N, arma::uword k){
 
 }
 
+// [[Rcpp::export]]
+Rcpp::LogicalVector which_approx_equal_cpp(const Rcpp::NumericVector& a, const Rcpp::NumericVector& b, double tol, bool reldiff = false){
+  size_t nEntries = a.size();
+
+  Rcpp::LogicalVector res (nEntries, true);
+
+  for (size_t entry = 0; entry < nEntries; entry++){
+    if (a[entry] != b[entry]){
+      res[entry] = false;
+    }
+    else{
+      const double abs_d = std::abs(a[entry] - b[entry]);
+      if (reldiff == true){
+        const double abs_a = std::abs(a[entry]);
+        const double abs_b = std::abs(b[entry]);
+        const double max_c = (std::max)(abs_a,abs_b);
+
+        if (max_c >= 1){
+          if(abs_d > (tol * max_c)){
+            res[entry] = false;
+          }
+        }
+        else{
+          if ((abs_d / max_c ) > tol){
+            res[entry] = false;
+          }
+        }
+
+      }
+      else{
+        if (abs_d > tol){
+          res[entry] = false;
+        }
+      }
+    }
+  }
+
+  return res;
+
+}

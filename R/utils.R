@@ -45,3 +45,32 @@ eta_isFeasible <- function(G, eta, tol = .Machine$double.eps){
   }
   eta_isFeasible_cpp(G, eta, tol)
 }
+
+#' Check which entries of two numeric vectors are (approximately) equal
+#'
+#' Checks which entries of two numeric vector are up to a difference of > `tol` equal.
+#' Note that we follow the convention of Armadillo: if the difference of two numbers
+#' x and y is smaller or equal to `tol` then the numbers are approximately equal.
+#'
+#' @param a a numeric vector
+#' @param b a numeric vector of the same length as a
+#' @param tol double value (default`.Machine$double.eps`) of the tolerance
+#' @param reldiff logical (default `FALSE`) whether to compute the relative difference `TRUE`
+#' or the absolute difference `FALSE`
+#' @returns a logical vector with elements `TRUE` if the entries are approximately equal
+#' or `FALSE` if not.
+#' @export
+which_approx_equal <- function(a, b, tol = .Machine$double.eps, reldiff = FALSE){
+  a <- as.vector(a)
+  if (!is.numeric(a) || !is.atomic(a)){
+    stop("`a` is not a numeric vector")
+  }
+  b <- as.vector(b)
+  if (!is.numeric(b) || !is.atomic(b)){
+    stop("`b` is not a numeric vector")
+  }
+  if (length(a) != length(b)){
+    stop("`b` has not the same number of entries as `a`")
+  }
+  which_approx_equal_cpp(a,b, tol, reldiff)
+}

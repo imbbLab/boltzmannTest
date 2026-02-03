@@ -17,3 +17,7 @@ startAndBars <- function(N, k) {
     .Call(`_boltzmannTest_startAndBars`, N, k)
 }
 
+which_approx_equal_cpp <- function(a, b, tol, reldiff = FALSE) {
+    .Call(`_boltzmannTest_which_approx_equal_cpp`, a, b, tol, reldiff)
+}
+

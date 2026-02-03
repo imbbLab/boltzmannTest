@@ -223,6 +223,7 @@ sampleSize.entities_tibble <- function(object){
 #' @param object an `entities_tibble` object
 #' @param ... additional arguments for print
 #' @return Function prints to console
+#' @importFrom tibble as_tibble
 #' @export
 print.entities_tibble <- function(object, ...) {
   validate_entities_tibble(object)
