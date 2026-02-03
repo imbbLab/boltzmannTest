@@ -43,9 +43,9 @@ new_boltzmannTestResult <- function(
     testedMoments,
     dataName,
     coefficientMatrix,
+    method,
     nestedAlternativeDistribution = NULL,
     nestedAlternativeMoments = NULL
-
 ){
   if(!is.null(nestedAlternativeDistribution)){
     nestedAlternativeDistribution <- as.numeric(nestedAlternativeDistribution)
@@ -66,9 +66,9 @@ new_boltzmannTestResult <- function(
     testedMoments = as.integer(testedMoments),
     dataName = as.character(dataName),
     coefficientMatrix = as.matrix(coefficientMatrix),
+    method = method,
     nestedAlternativeDistribution = nestedAlternativeDistribution,
     nestedAlternativeMoments = nestedAlternativeDistribution
-
   )
   class(res) = "boltzmannTestResult"
   validate_boltzmannTestResult(res)
@@ -85,7 +85,7 @@ validate_boltzmannTestResult <- function(object){
     "statistic", "iDivergence", "degreesOfFreedom", "sampleSize",
     "pValue", "alternativeDistribution", "alternativeMoments",
     "hypothesisDistribution", "hypothesisMoments", "testedMoments",
-    "dataName", "coefficientMatrix", "nestedAlternativeDistribution",
+    "dataName", "coefficientMatrix", "method", "nestedAlternativeDistribution",
     "nestedAlternativeMoments"
   )
   if (! all(fields %in% names(object))){
@@ -194,8 +194,10 @@ boltzmannTestResult <- function(
     testedMoments,
     dataName,
     coefficientMatrix,
+    method = "Boltzmann Test",
     nestedAlternativeDistribution = NULL,
     nestedAlternativeMoments = NULL
+
 ){
   new_boltzmannTestResult(
     statistic,
@@ -210,6 +212,7 @@ boltzmannTestResult <- function(
     testedMoments,
     dataName,
     coefficientMatrix,
+    method,
     nestedAlternativeDistribution,
     nestedAlternativeMoments
   )
@@ -220,7 +223,7 @@ boltzmannTestResult <- function(
 print.boltzmannTestResult <- function(object, digits = getOption("digits"), prefix = "\t", ...) {
   validate_boltzmannTestResult(object)
   cat("\n")
-  cat(strwrap("Boltzmann Test", prefix = prefix), sep = "\n")
+  cat(strwrap(object$method, prefix = prefix), sep = "\n")
   cat("\n")
   cat("data:  ", object$dataName, "\n", sep = "")
 

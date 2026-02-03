@@ -1,6 +1,106 @@
 #' @export
 boltzmannTest <- function(x, ...) UseMethod("boltzmannTest")
 
+## one and two sample tests
+
+#' @export
+boltzmannTest.default <-function(x, y = NULL, mu = 0, paired = FALSE){
+  if (!missing(mu) && (length(mu) != 1 || us.na(mu))){
+    stop("`mu` must be a single number")
+  }
+  if (!is.numeric(x)){
+    stop("`x` must be a numeric vector")
+  }
+  xName <- deparse(substitute(x))
+  if(!is.null(y)){
+    if (!is.numeric(y)){
+      stop("`y` must a be a numeric vector")
+    }
+    yName <- deparse(substitute(y))
+    dataName <- paste0(xName, " and", yName)
+    if (paired){
+      if(length(x) != length(y)){
+        stop(paste0("`", xName, "` and `", yName, "` must have the same length"))
+      }
+      method <- "Paired Boltzmann Test"
+
+      ok <-complete.cases(x,y)
+      x <- x[ok]
+      y <- y[ok]
+      data <- tibble(
+        x = x,
+        y = y
+      )
+      data <- data[complete.cases(data), ]
+      entities <- entities_tibble(data)
+      G <- rbind(
+        1,
+        entities$x - entities$y
+      )
+      eta <- c(1, mu)
+      names(eta) = c("norm", paste0("<", xName, "-", yName, ">"))
+      testedMoments <- 2
+    } else{
+      method <- "Two Sample Boltzmann Test"
+      xok <- !is.na(x)
+      yok <- !is.na(y)
+
+      data <- tibble(
+        z = c(x[xok], y[yok]),
+        group = factor(c(rep("x", sum(xok)), rep("y", sum(yok))), levels = c("x", "y"))
+      )
+      entities <- entities_tibble(data)
+      xNameProb <- sum((entities$group == "x") * empirical(entities))
+      G <- rbind(
+        1,
+        with(
+          entities,
+          ifelse(
+            group == "x",
+            z / xNameProb,
+            -z / (1 - xNameProb)
+          )
+        ),
+        with(
+          entities,
+          group == "x"
+        )
+      )
+      eta <- c(1, mu, xNameProb)
+      names(eta) = c("norm", paste0("<x_", xName, ">-<y_", yName, ">"))
+      testedMoments <- 2
+    }
+  } else{
+
+    if (paired){
+      stop("`y` is missing for paired test")
+    }
+    dataName <- xName
+    method <- "One Sample Boltzmann Test"
+    xok <- !is.na(x)
+    x <- x[xok]
+    data <- tibble(
+      z = x
+    )
+    entities <- entities_tibble(data)
+
+    G <- rbind(
+      1,
+      entities$z
+    )
+
+    eta <- c(1, mu)
+    names(eta) <- c("norm", paste0("<", xName, ">"))
+    testedMoments <- 2
+  }
+  res <- boltzmannTest(entities, G, eta, testedMoments)
+  res$dataName = dataName
+  res$method = method
+  res
+}
+
+
+
 ## what do we need
 ## 1. G the coefficient matrix
 ## 2. H = eta == vector of hypothesis conditions
