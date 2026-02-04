@@ -54,24 +54,24 @@ new_boltzmannTestResult <- function(
     nestedAlternativeMoments <- as.numeric(nestedAlternativeMoments)
   }
   res <- list(
-    statistic = as.numeric(statistic),
-    iDivergence = as.numeric(iDivergence),
-    degreesOfFreedom = as.integer(degreesOfFreedom),
-    sampleSize = as.integer(sampleSize),
+    statistic = statistic,
+    iDivergence = iDivergence,
+    degreesOfFreedom = degreesOfFreedom,
+    sampleSize = sampleSize,
     pValue = pValue,
-    alternativeDistribution = as.numeric(alternativeDistribution),
-    alternativeMoments = as.numeric(alternativeMoments),
-    hypothesisDistribution = as.numeric(hypothesisDistribution),
-    hypothesisMoments = as.numeric(hypothesisMoments),
-    testedMoments = as.integer(testedMoments),
-    dataName = as.character(dataName),
-    coefficientMatrix = as.matrix(coefficientMatrix),
+    alternativeDistribution = alternativeDistribution,
+    alternativeMoments = alternativeMoments,
+    hypothesisDistribution = hypothesisDistribution,
+    hypothesisMoments = hypothesisMoments,
+    testedMoments = testedMoments,
+    dataName = dataName,
+    coefficientMatrix = coefficientMatrix,
     method = method,
     nestedAlternativeDistribution = nestedAlternativeDistribution,
     nestedAlternativeMoments = nestedAlternativeDistribution
   )
   class(res) = "boltzmannTestResult"
-  validate_boltzmannTestResult(res)
+  res
 }
 #' @description
 #' `validate_boltzmannTestResult()` checks a `boltzmannTestResult` object for internal consistency.
@@ -199,29 +199,30 @@ boltzmannTestResult <- function(
     nestedAlternativeMoments = NULL
 
 ){
-  new_boltzmannTestResult(
-    statistic,
-    iDivergence,
-    degreesOfFreedom,
-    sampleSize,
-    pValue,
-    alternativeDistribution,
-    alternativeMoments,
-    hypothesisDistribution,
-    hypothesisMoments,
-    testedMoments,
-    dataName,
-    coefficientMatrix,
-    method,
-    nestedAlternativeDistribution,
-    nestedAlternativeMoments
+  validate_boltzmannTestResult(
+    new_boltzmannTestResult(
+      statistic,
+      iDivergence,
+      degreesOfFreedom,
+      sampleSize,
+      pValue,
+      alternativeDistribution,
+      alternativeMoments,
+      hypothesisDistribution,
+      hypothesisMoments,
+      testedMoments,
+      dataName,
+      coefficientMatrix,
+      method,
+      nestedAlternativeDistribution,
+      nestedAlternativeMoments
+    )
   )
 }
 
 
 #' @export
 print.boltzmannTestResult <- function(object, digits = getOption("digits"), prefix = "\t", ...) {
-  validate_boltzmannTestResult(object)
   cat("\n")
   cat(strwrap(object$method, prefix = prefix), sep = "\n")
   cat("\n")

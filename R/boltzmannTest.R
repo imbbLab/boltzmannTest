@@ -1,8 +1,8 @@
 #' @export
 boltzmannTest <- function(x, ...) UseMethod("boltzmannTest")
 
-## one and two sample tests
-
+## one and two sample tests for the mean
+#' @importFrom tibble tibble
 #' @export
 boltzmannTest.default <-function(x, y = NULL, mu = 0, paired = FALSE){
   if (!missing(mu) && (length(mu) != 1 || us.na(mu))){
@@ -22,7 +22,7 @@ boltzmannTest.default <-function(x, y = NULL, mu = 0, paired = FALSE){
       if(length(x) != length(y)){
         stop(paste0("`", xName, "` and `", yName, "` must have the same length"))
       }
-      method <- "Paired Boltzmann Test"
+      method <- "Paired Boltzmann Test of a mean"
 
       ok <-complete.cases(x,y)
       x <- x[ok]
@@ -41,7 +41,7 @@ boltzmannTest.default <-function(x, y = NULL, mu = 0, paired = FALSE){
       names(eta) = c("norm", paste0("<", xName, "-", yName, ">"))
       testedMoments <- 2
     } else{
-      method <- "Two Sample Boltzmann Test"
+      method <- "Two Sample Boltzmann Test of the difference of means"
       xok <- !is.na(x)
       yok <- !is.na(y)
 
@@ -76,7 +76,7 @@ boltzmannTest.default <-function(x, y = NULL, mu = 0, paired = FALSE){
       stop("`y` is missing for paired test")
     }
     dataName <- xName
-    method <- "One Sample Boltzmann Test"
+    method <- "One Sample Boltzmann Test of the mean"
     xok <- !is.na(x)
     x <- x[xok]
     data <- tibble(
@@ -127,7 +127,7 @@ boltzmannTest.entities_tibble <-function(entities, G, eta, testedMoments, nested
       stop("the nested moments must not include the tested moments")
     }
   }
-
+  testedMoments <- as.integer(testedMoments)
   if (any(testedMoments < 1) || any(testedMoments > NROW(G))){
     stop("the indices of the tested moments are out of range")
   }
