@@ -5,11 +5,9 @@
 // [[Rcpp::export]]
 bool matrix_hasFullRowRank_cpp(const arma::mat& G, double tol) {
   if (G.n_rows > G.n_cols) return false;
-  arma::mat Q, R;
-  arma::qr(Q, R, G);
 
   // Check if all diagonal elements of R are non-zero
-  return arma::all(arma::abs(R.diag()) > tol);
+  return arma::rank(G) == G.n_rows;
 }
 
 

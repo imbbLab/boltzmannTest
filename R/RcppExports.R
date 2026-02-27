@@ -5,6 +5,14 @@ iProjector_cpp <- function(G, eta, v, maxit, convTolerance) {
     .Call(`_boltzmannTest_iProjector_cpp`, G, eta, v, maxit, convTolerance)
 }
 
+multinomialPvalue_cpp <- function(G, eta, mu, v, N) {
+    .Call(`_boltzmannTest_multinomialPvalue_cpp`, G, eta, mu, v, N)
+}
+
+multinomialPvalue_incremental_cpp <- function(G, eta, mu, v, N) {
+    .Call(`_boltzmannTest_multinomialPvalue_incremental_cpp`, G, eta, mu, v, N)
+}
+
 matrix_hasFullRowRank_cpp <- function(G, tol) {
     .Call(`_boltzmannTest_matrix_hasFullRowRank_cpp`, G, tol)
 }

@@ -63,6 +63,14 @@ iProjector <- function(G, eta, v, maxit = 10000L, convTolerance = .Machine$doubl
   }
 }
 
+#' Computes the I-divergence
+#'
+#' Given two probability vectors p and q compute the I-divergence
+#' also known as Kullback-Leibler divergence D(p||q) of p from q
+#'
+#' @param p a numeric vector that should sum up to one (candidate distribution)
+#' @param q a numeric vector that should sum up to one (reference distribution)
+#'
 #' @export
 iDivergence <- function(p, q, tolerance = .Machine$double.eps){
   p <- as.vector(p)
@@ -82,11 +90,14 @@ iDivergence <- function(p, q, tolerance = .Machine$double.eps){
   if (any(q < tolerance)){
     stop("`q` must be positive")
   }
-  if(abs(sum(p) - 1) > sqrt(tolerance)){
-    stop("`p` must sum to 1")
+  if(abs(sum(p) - 1) >= sqrt(tolerance)){
+    warning("`p` should sum to 1. Normalizing to 1")
+    p <- p / sum(p)
+
   }
-  if(abs(sum(q) - 1) > sqrt(tolerance)){
-    stop("`q` must sum to 1")
+  if(abs(sum(q) - 1) >= sqrt(tolerance)){
+    warning("`q` must sum to 1. Normalizing to 1")
+    q <- q / sum(q)
   }
 
   notNull <- which(! p < tolerance)

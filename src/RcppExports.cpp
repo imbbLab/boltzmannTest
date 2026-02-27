@@ -26,6 +26,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// multinomialPvalue_cpp
+double multinomialPvalue_cpp(const arma::mat& G, const arma::vec& eta, const arma::vec& mu, const arma::vec& v, arma::uword N);
+RcppExport SEXP _boltzmannTest_multinomialPvalue_cpp(SEXP GSEXP, SEXP etaSEXP, SEXP muSEXP, SEXP vSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type eta(etaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(multinomialPvalue_cpp(G, eta, mu, v, N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multinomialPvalue_incremental_cpp
+double multinomialPvalue_incremental_cpp(const arma::mat& G, const arma::vec& eta, const arma::vec& mu, const arma::vec& v, arma::uword N);
+RcppExport SEXP _boltzmannTest_multinomialPvalue_incremental_cpp(SEXP GSEXP, SEXP etaSEXP, SEXP muSEXP, SEXP vSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type eta(etaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(multinomialPvalue_incremental_cpp(G, eta, mu, v, N));
+    return rcpp_result_gen;
+END_RCPP
+}
 // matrix_hasFullRowRank_cpp
 bool matrix_hasFullRowRank_cpp(const arma::mat& G, double tol);
 RcppExport SEXP _boltzmannTest_matrix_hasFullRowRank_cpp(SEXP GSEXP, SEXP tolSEXP) {
@@ -80,6 +110,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_boltzmannTest_iProjector_cpp", (DL_FUNC) &_boltzmannTest_iProjector_cpp, 5},
+    {"_boltzmannTest_multinomialPvalue_cpp", (DL_FUNC) &_boltzmannTest_multinomialPvalue_cpp, 5},
+    {"_boltzmannTest_multinomialPvalue_incremental_cpp", (DL_FUNC) &_boltzmannTest_multinomialPvalue_incremental_cpp, 5},
     {"_boltzmannTest_matrix_hasFullRowRank_cpp", (DL_FUNC) &_boltzmannTest_matrix_hasFullRowRank_cpp, 2},
     {"_boltzmannTest_eta_isFeasible_cpp", (DL_FUNC) &_boltzmannTest_eta_isFeasible_cpp, 3},
     {"_boltzmannTest_startAndBars", (DL_FUNC) &_boltzmannTest_startAndBars, 2},
