@@ -213,7 +213,44 @@ boltzmannTest.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
   res
 }
 
+#' @export
+boltzmannTest.formula <- function(formula, data, eta = 0){
+  if (missing(formula)){
+    stop("`formula` not provided")
+  }
+  ## coerce data to a data frame
+  data <- as.data.frame(data)
 
+  ## make sure that all variables used in the formula are also present
+  ## as columns in the data
+  vars <- all.vars(formula)
+  if (!all(vars %in% colnames(data))) {
+    stop("all variables in the formula must be columns in data")
+  }
+
+  ## we have two possibilities
+  ## 1. we have a left hand side, which is then the target
+  ##    and the right hand side is used to define groups
+  ##    --> perform multifactorial analysis of all pairs of groups
+  ## 2. we have no left hand side
+  ##    --> perform a mean analysis
+
+  ## got a left hand side
+  if (length(formula) == 3L){
+    ## if an intercept is present remove it
+    if (attr(terms(formula), "intercept") == 1)
+      formula <- update(formula, . ~ . -1)
+    ## get the model matrix
+    modelMatrix <- model.matrix(formula, data = data)
+    ## get the target
+    yx <- eval(attr(terms(formula), "variables"), envir = data)
+  ## no left hand side
+  } else{
+
+  }
+
+
+}
 
 
 
