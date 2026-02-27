@@ -236,19 +236,18 @@ boltzmannTest.formula <- function(formula, data, eta = 0){
   ##    --> perform a mean analysis
 
   ## got a left hand side
+
   if (length(formula) == 3L){
-    ## if an intercept is present remove it
-    if (attr(terms(formula), "intercept") == 1)
-      formula <- update(formula, . ~ . -1)
-    ## get the model matrix
-    modelMatrix <- model.matrix(formula, data = data)
-    ## get the target
-    yx <- eval(attr(terms(formula), "variables"), envir = data)
+    target <- vars[1]
+    vars <- vars[-1]
   ## no left hand side
   } else{
-
+    target <- NULL
   }
+  groups <- subset(data, select = vars)
 
+  groups <- group_by(groups, across(everything()))
+  groups <- mutate(groups, group = cur_group_id())
 
 }
 
