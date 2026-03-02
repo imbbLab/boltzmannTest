@@ -217,6 +217,8 @@ boltzmannTest.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
   res
 }
 
+#' @importFrom dplyr group_by across mutate cur_group_id ungroup
+#' @importFrom stats model.frame
 #' @export
 boltzmannTest.formula <- function(formula, data, mu = 0){
   if (missing(formula)){

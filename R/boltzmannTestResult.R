@@ -230,7 +230,7 @@ print.boltzmannTestResult <- function(object, digits = getOption("digits"), pref
 
   cat("statistic = ", object$statistic, ", df = ", object$degreesOfFreedom, ", N = ", object$sampleSize, sep = "")
   pval <- format.pval(object$pValue, digits = max(1L, digits - 3L))
-  cat(", p-value ", if (substr(pval, 1L, 1L) == "<") pval else paste("=", pval), "\n", sep = "")
+  cat(", p-value ", if (substr(pval, 1L, 1L) == "<") pval else paste("=", pval), "\n\n", sep = "")
 
   testedMoments <- rep(FALSE, length(object$hypothesisMoments))
   testedMoments[object$testedMoments] = TRUE
