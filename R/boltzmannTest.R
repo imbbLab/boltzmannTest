@@ -214,7 +214,7 @@ boltzmannTest.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
 }
 
 #' @export
-boltzmannTest.formula <- function(formula, data, eta = 0){
+boltzmannTest.formula <- function(formula, data, mu = 0){
   if (missing(formula)){
     stop("`formula` not provided")
   }
@@ -228,6 +228,19 @@ boltzmannTest.formula <- function(formula, data, eta = 0){
     stop("all variables in the formula must be columns in data")
   }
 
+  varsClass <- sapply(vars, function(v) class(data[[v]]))
+
+  if (any(varsClass == "character")){
+    stop("variables in `formula` are character vectors. Convert these columns in `data` to factors")
+  }
+
+  if (any(complete.cases(data[vars]) == FALSE)){
+    warning("selected columns in data contain unobserved values. Removing the corresponding rows")
+    data = data[complete.cases(data[vars]), vars]
+  } else{
+    data = data[, vars]
+  }
+
   ## we have two possibilities
   ## 1. we have a left hand side, which is then the target
   ##    and the right hand side is used to define groups
@@ -237,18 +250,104 @@ boltzmannTest.formula <- function(formula, data, eta = 0){
 
   ## got a left hand side
 
-  if (length(formula) == 3L){
-    target <- vars[1]
-    vars <- vars[-1]
-  ## no left hand side
-  } else{
-    target <- NULL
+  if (!length(formula) == 3L){
+    stop("no target expectations defined")
   }
-  groups <- subset(data, select = vars)
+  tryCatch(
+    mf <- model.frame(
+      formula = formula,
+      data = data
+    ),
+    error = function(e) stop(paste0("formula is misspecified. ", e)),
+    warning = function(e) stop(paste0("`targets are misspecified. ", e))
+  )
 
-  groups <- group_by(groups, across(everything()))
-  groups <- mutate(groups, group = cur_group_id())
+  ## get the target(s)
+  y <- mf[, 1, drop = FALSE]
+  if (is.matrix(y[[1]])){
+    y <- y[[1]]
+  }
+  for(targetVar in colnames(y)){
+    if(class(y[[targetVar]]) == "factor"){
+      y[[targetVar]] <- as.numeric(y[[targetVar]]) - 1
+    }
+  }
+  ## get the grouping variables
+  X <- mf[,-1, drop = FALSE]
 
+  xVarsClass <- sapply(colnames(X), function(v) class(X[[v]]))
+
+  if(any(xVarsClass != "factor")){
+    stop("all grouping variables must be factors")
+  }
+  ## make the groups
+
+  groups <- group_by(X, across(everything()))
+  groups <- mutate(groups, .group = cur_group_id())
+  groups$.group = factor(
+    groups$.group,
+    labels = apply(
+      sapply(
+        attr(groups, "groups")[, colnames(X)],
+        as.character
+      ),
+      1,
+      paste,
+      collapse = "."
+    )
+  )
+  groups <- ungroup(groups)
+  groupLevels <- levels(groups$.group)
+  if (length(groupLevels) < 2){
+    stop("not enough groups to compare")
+  }
+  outcomes <- outcomes_tibble(data.frame(y, group = groups$.group, check.names = FALSE))
+  ## group prevalences except first
+  prevalence <- lapply(
+    groupLevels,
+    function(group){
+      ifelse(outcomes$group == group, 1, 0 )
+    }
+  )
+  names(prevalence) <- groupLevels
+  prevalence <- do.call(rbind, prevalence)
+
+  G <- rbind(norm = 1, prevalence[-1, ])
+
+  prevalences <- (prevalence %*% empirical(outcomes))[, 1]
+  eta <- c(norm = 1, prevalences[-1])
+
+  ## all groups versus first
+  for (targetVar in colnames(y)){
+    dt <- lapply(
+      groupLevels[-1],
+      function(group){
+        ifelse(
+          outcomes$group == group,
+          outcomes[[targetVar]] / prevalences[group],
+          ifelse(
+            outcomes$group == groupLevels[1],
+            -outcomes[[targetVar]] / prevalences[groupLevels[1]],
+            0
+          )
+
+        )
+      }
+    )
+    names(dt) <- paste0(targetVar, ":", groupLevels[-1], "_vs_", groupLevels[1])
+    dt <- do.call(rbind, dt)
+    G <- rbind(G, dt)
+  }
+  targetMoments <- seq(length(eta) + 1, nrow(G))
+  if (length(mu) == 1){
+    eta <- c(eta, rep(mu, length(targetMoments)))
+  } else{
+    if (length(mu) != length(targetMoments)){
+      stop("the number of expectations in `mu` does not match the number of tested moments")
+    }
+    eta <- c(eta, mu)
+  }
+  boltzmannTest(outcomes, G, eta, targetMoments)
 }
 
 
