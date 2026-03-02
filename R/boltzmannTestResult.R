@@ -234,36 +234,17 @@ print.boltzmannTestResult <- function(object, digits = getOption("digits"), pref
 
   testedMoments <- rep(FALSE, length(object$hypothesisMoments))
   testedMoments[object$testedMoments] = TRUE
-  cat("hypothesis moments:\n")
-  cat(
-    ifelse(
-      testedMoments,
-      paste0("\033[0;", 1, "m",format(object$hypothesisMoments, digits = digits),"\033[0m"),
-      paste0("\033[0;", 0, "m",format(object$hypothesisMoments, digits = digits),"\033[0m")
-    )
+  moments <- data.frame(
+    hypothesis = object$hypothesisMoments,
+    alternative = object$alternativeMoments
   )
-  cat("\n")
+
   if (!is.null(object$nestedAlternativeMoments)){
-    cat("nested alternative moments:\n")
-    cat(
-      ifelse(
-        testedMoments,
-        paste0("\033[0;", 1, "m",format(object$nestedAlternativeMoments, digits = digits),"\033[0m"),
-        paste0("\033[0;", 0, "m",format(object$nestedAlternativeMoments, digits = digits),"\033[0m")
-      )
-    )
-    cat("\n")
+    moments$nested <- object$nestedAlternativeMoments
+    moments <- moments[, c("hypothesis", "nested", "alternative")]
   }
-  cat("alternative (empirical) moments:\n")
-  cat(
-    ifelse(
-      testedMoments,
-      paste0("\033[0;", 1, "m",format(object$alternativeMoments, digits = digits),"\033[0m"),
-      paste0("\033[0;", 0, "m",format(object$alternativeMoments, digits = digits),"\033[0m")
-    )
-  )
-  cat("\ntested generalized moments are bold\n")
-  cat("\n")
+  moments$tested <- ifelse(testedMoments, "*", "")
+  print(moments, digits = digits)
 
   invisible(object)
 }
