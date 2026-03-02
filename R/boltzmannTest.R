@@ -265,7 +265,7 @@ boltzmannTest.formula <- function(formula, data, mu = 0){
   ## get the target(s)
   y <- mf[, 1, drop = FALSE]
   if (is.matrix(y[[1]])){
-    y <- y[[1]]
+    y <- data.frame(y[[1]])
   }
   for(targetVar in colnames(y)){
     if(class(y[[targetVar]]) == "factor"){
