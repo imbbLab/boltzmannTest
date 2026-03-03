@@ -1,42 +1,55 @@
+#' Perform a Boltzmann Test
 #' @export
-boltzmannTest <- function(x, ...) UseMethod("boltzmannTest")
+boltzmann.test <- function(object, ...) UseMethod("boltzmann.test")
 
-#' Boltzmann Test
+#' @rdname boltzmann.test
+#' @description
+#' `boltzmann.test` with `object` being an outcome_tibble is the general
+#' interface to perform the Boltzmann Test.
 #'
+#' @param outcomes an `outcomes_tibble` object
+#' @param G a numeric matrix with the function values for the outcomes in the rows
+#' and the outcomes in the columns
+#' @param eta a numeric vector with the same number of entries as `G` has rows
+#' @param testedExpectations an integer vector indicating the tested expectations
+#' @param nestedExpectations an integer vector indicating the nested expectations
+#' @param maxit an integer specifying the maximimal number of iterations used in
+#' the I-projector (default 10000L)
+#' @param tolerance a numeric specifying the numeric tolerance (default
+#' .Machine$double.eps)
 #' @importFrom tibble tibble
 #' @export
 #'
-
-boltzmannTest.outcomes_tibble <-function(outcomes, G, eta, testedMoments, nested = NULL, strict = FALSE, maxit = 10000L, tolerance = .Machine$double.eps){
+boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, nestedExpectations = NULL, maxit = 10000L, tolerance = .Machine$double.eps){
   if (NROW(G) != length(eta)){
     stop("the number of generalized moments given by `eta` does not match the number of rows in `G`")
   }
-  if (!is.null(nested)){
-    nested <- as.vector(nested)
-    if (any(nested) < 1 || any(nested) > NROW(G)){
-      stop("the indices of the nested moments are out of range")
+  if (!is.null(nestedExpectations)){
+    nestedExpectations <- as.vector(nestedExpectations)
+    if (any(nestedExpectations) < 1 || any(nestedExpectations) > NROW(G)){
+      stop("the indices of the nested expectations are out of range")
     }
-    if (any(nested %in% testedMoments)){
-      stop("the nested moments must not include the tested moments")
+    if (any(nestedExpectations %in% testedExpectations)){
+      stop("the nested expectations must not include the tested expectations")
     }
   }
-  testedMoments <- as.integer(testedMoments)
-  if (any(testedMoments < 1) || any(testedMoments > NROW(G))){
+  testedExpectations <- as.integer(testedExpectations)
+  if (any(testedExpectations < 1) || any(testedExpectations > NROW(G))){
     stop("the indices of the tested moments are out of range")
   }
-  if (length(testedMoments) < 1){
+  if (length(testedExpectations) < 1){
     stop("there must be at least one moment to be tested")
   }
-  degreesOfFreedom <- length(testedMoments)
+  degreesOfFreedom <- length(testedExpectations)
   dataName <- deparse(substitute(outcomes))
   sampleSize <- sampleSize(outcomes)
   ## determine the generalized moments for the empirical distribution
   mu <- (G %*% empirical(outcomes))[, 1]
 
   etaNested <- NULL
-  if (!is.null(nested)){
+  if (!is.null(nestedExpectations)){
     etaNested <- eta
-    eta[nestedMoments] = mu[nestedMoments]
+    eta[nestedExpectations] = mu[nestedExpectations]
   }
 
   ## 1. project empirical distribution to hypothesis linear family
@@ -54,20 +67,20 @@ boltzmannTest.outcomes_tibble <-function(outcomes, G, eta, testedMoments, nested
         sampleSize = sampleSize,
         pValue = NA,
         alternativeDistribution = empirical(outcomes),
-        alternativeMoments = mu,
+        alternativeExpectations = mu,
         hypothesisDistribution = rep(NA, NROW(outcomes)),
-        hypothesisMoments = eta,
-        testedMoments = testedMoments,
+        hypothesisExpectations = eta,
+        testedExpectations = testedExpectations,
         dataName = dataName,
         coefficientMatrix = G,
-        nestedAlternativeDistribution = if (is.null(nested)) NULL else rep(NA, NROW(outcomes)),
-        nestedAlternativeMoments = if (is.null(nested)) NULL else etaNested
+        nestedAlternativeDistribution = if (is.null(nestedExpectations)) NULL else rep(NA, NROW(outcomes)),
+        nestedAlternativeExpectations = if (is.null(nestedExpectations)) NULL else etaNested
       ))
       ## we may remove the offending entry and try again?
     }
     ## "update" hypothesis distribution by the empirical moments
 
-    baseDistribution <- if (!is.null(nested)){
+    baseDistribution <- if (!is.null(nestedExpectations)){
       iProjector(G = G, eta = etaNested, v = h$p, maxit = maxit, convTolerance = tolerance)
     } else{
       h
@@ -83,14 +96,14 @@ boltzmannTest.outcomes_tibble <-function(outcomes, G, eta, testedMoments, nested
       sampleSize = sampleSize,
       pValue = pValue,
       alternativeDistribution = empirical(outcomes),
-      alternativeMoments = mu,
+      alternativeExpectations = mu,
       hypothesisDistribution = h$p,
-      hypothesisMoments = eta,
-      testedMoments = testedMoments,
+      hypothesisExpectations = eta,
+      testedExpectations = testedExpectations,
       dataName = dataName,
       coefficientMatrix = G,
-      nestedAlternativeDistribution = if (is.null(nested)) NULL else baseDistribution$p,
-      nestedAlternativeMoments = etaNested
+      nestedAlternativeDistribution = if (is.null(nestedExpectations)) NULL else baseDistribution$p,
+      nestedAlternativeExpectations = etaNested
     )
   } else{
     boltzmannTestResult(
@@ -100,14 +113,14 @@ boltzmannTest.outcomes_tibble <-function(outcomes, G, eta, testedMoments, nested
       sampleSize = sampleSize,
       pValue = NA,
       alternativeDistribution = empirical(outcomes),
-      alternativeMoments = mu,
+      alternativeExpectations = mu,
       hypothesisDistribution = rep(NA, NROW(outcomes)),
-      hypothesisMoments = eta,
-      testedMoments = testedMoments,
+      hypothesisExpectations = eta,
+      testedExpectations = testedExpectations,
       dataName = dataName,
       coefficientMatrix = G,
-      nestedAlternativeDistribution = if (is.null(nested)) NULL else rep(NA, NROW(outcomes)),
-      nestedAlternativeMoments = if (is.null(nested)) NULL else etaNested
+      nestedAlternativeDistribution = if (is.null(nestedExpectations)) NULL else rep(NA, NROW(outcomes)),
+      nestedAlternativeExpectations = if (is.null(nestedExpectations)) NULL else etaNested
     )
   }
 
@@ -115,10 +128,21 @@ boltzmannTest.outcomes_tibble <-function(outcomes, G, eta, testedMoments, nested
 
 
 }
-
+#' @rdname boltzmann.test
+#' @description
+#' `boltzmann.test` with `object` being a numeric vector performs one or two sample
+#' Boltzmann Tests for the mean. It follows the `t.test` interface.
+#'
+#' @param x a (non-empty) numeric vector of data values
+#' @param y an optional (non-empty) numeric vector of data values
+#' @param mu a single number indicating the true value of the mean or the difference in
+#' means when performing a two sample test
+#' @param paired a logical indicating whether to perform a paired test (default
+#' FALSE)
+#'
 #' @importFrom tibble tibble
 #' @export
-boltzmannTest.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
+boltzmann.test.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
   if (!missing(mu) && (length(mu) != 1 || is.na(mu))){
     stop("`mu` must be a single number")
   }
@@ -154,7 +178,7 @@ boltzmannTest.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
       eta <- c(1, mu)
       names(eta) <- c("norm", paste0(xName, "-", yName))
       rownames(G) <- names(eta)
-      testedMoments <- 2
+      testedExpectations <- 2
     } else{
       method <- "Two Sample Boltzmann Test of the difference of means"
       xok <- !is.na(x)
@@ -184,7 +208,7 @@ boltzmannTest.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
       )
       eta <- c(1, xNameProb, mu)
       names(eta) <- c("norm", xName, paste0(xName, "_vs_", yName))
-      testedMoments <- 3
+      testedExpectations <- 3
       rownames(G) <- names(eta)
     }
   } else{
@@ -209,18 +233,40 @@ boltzmannTest.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
     eta <- c(1, mu)
     names(eta) <- c("norm", xName)
     rownames(G) <- names(eta)
-    testedMoments <- 2
+    testedExpectations <- 2
   }
-  res <- boltzmannTest(outcomes, G, eta, testedMoments)
+  res <- boltzmann.test(outcomes, G, eta, testedExpectations)
   res$dataName = dataName
   res$method = method
   res
 }
 
+#' @rdname boltzmann.test
+#' @description
+#' `boltzmann.test` with `object` being a formula performs multigroup
+#' or multivariate comparisons
+#'
+#' @param formula a formula either of the form `lhs` ~ `rhs`, where `lhs` is either
+#' a numeric or factor variable or combinations thereof (see details) and
+#' `rhs` is one or more factor variable used to define the groups, or of the form
+#' ~ `rhs` where `rhs` contains one or more numeric or factor variable (see details)
+#' @param data a data.frame containing the variables used in `formula`
+#' @param nu a single number or a numeric vector specifying the values of the
+#' expectations
+#' @details
+#' The `formula` API allows to specify multigroup comparisons for one or more target
+#' variable specified at `lhs`. If a target variable is numeric then the difference
+#' of means of all groups except the first versus the mean of the first group is compared.
+#' if a target variable is a factor then the difference of the prevalence of the second (third, etc) level
+#' of that level of all groups except the first versus the first group is compared.
+#' If only a `rhs` is given, a multivariate comparison to the given `nu` is performed. If the target
+#' is numeric the mean is calculated. If the target is a factor the prevalence is calculated.
+#'
+
 #' @importFrom dplyr group_by across mutate cur_group_id ungroup
 #' @importFrom stats model.frame
 #' @export
-boltzmannTest.formula <- function(formula, data, mu = 0){
+boltzmann.test.formula <- function(formula, data, nu = 0){
   if (missing(formula)){
     stop("`formula` not provided")
   }
@@ -374,14 +420,14 @@ boltzmannTest.formula <- function(formula, data, mu = 0){
         G <- rbind(G, dt)
       }
     }
-    targetMoments <- seq(length(eta) + 1, nrow(G))
-    if (length(mu) == 1){
-      eta <- c(eta, rep(mu, length(targetMoments)))
+    targetExpectations <- seq(length(eta) + 1, nrow(G))
+    if (length(nu) == 1){
+      eta <- c(eta, rep(nu, length(targetExpectations)))
     } else{
-      if (length(mu) != length(targetMoments)){
-        stop("the number of expectations in `mu` does not match the number of tested moments")
+      if (length(nu) != length(targetExpectations)){
+        stop("the number of expectations in `nu` does not match the number of tested moments")
       }
-      eta <- c(eta, mu)
+      eta <- c(eta, nu)
     }
     names(eta) = rownames(G)
 
@@ -424,14 +470,14 @@ boltzmannTest.formula <- function(formula, data, mu = 0){
 
     dt <- do.call(rbind, dt)
     G <- rbind(norm = 1, dt)
-    targetMoments <- seq(2, nrow(G))
-    if (length(mu) == 1){
-      eta <- rep(mu, length(targetMoments))
+    targetExpectations <- seq(2, nrow(G))
+    if (length(nu) == 1){
+      eta <- rep(nu, length(targetExpectations))
     } else{
-      if (length(mu) != length(targetMoments)){
-        stop("the number of expectations in `mu` does not match the number of tested moments")
+      if (length(nu) != length(targetExpectations)){
+        stop("the number of expectations in `nu` does not match the number of tested moments")
       }
-      eta <- mu
+      eta <- nu
     }
     if(any(checkClass == "factor" & (eta <= 0 | eta >= 1))){
       stop("hypothesized prevalences outside (0, 1)")
@@ -441,7 +487,7 @@ boltzmannTest.formula <- function(formula, data, mu = 0){
   } else{
     stop("unrecognized `formula`")
   }
-  boltzmannTest(outcomes, G, eta, targetMoments)
+  boltzmann.test(outcomes, G, eta, targetExpectations)
 }
 
 

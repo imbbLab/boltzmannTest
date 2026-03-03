@@ -10,25 +10,25 @@
 #' of the hypothesis distribution or outer alternative distribution to the (inner) alternative
 #' distribution
 #' @param degreesOfFreedom a single integer value for the degrees of freedom of the Chi^2 distribution.
-#' Gives the number of tested generalized Moments and must be > 0
+#' Gives the number of tested generalized Expectations and must be > 0
 #' @param sampleSize a single integer value for the sample size. Must be > 1
 #' @param pValue a single numeric value between 0 and 1 for the p-value
 #' @param alternativeDistribution a numeric vector for the alternative distribution (usually equal
 #' to the empirical distribution)
-#' @param alternativeMoments a numeric vector for the values of the generalized moments
+#' @param alternativeExpectations a numeric vector for the values of the generalized moments
 #' of the alternative distribution
 #' @param hypothesisDistribution a numeric vector for the hypothesis distribution
-#' @param hypothesisMoments a numeric vector for the values of the generalized moments
+#' @param hypothesisExpectations a numeric vector for the values of the generalized moments
 #' of the hypothesis distribution
-#' @param testedMoments integer vector with the indices of the tested moments
+#' @param testedExpectations integer vector with the indices of the tested moments
 #' @param dataName string with the name of the data
 #' @param coefficientMatrix a numeric matrix holding the coefficient matrix to calculate
 #' the generalized moments. The number of rows must equal the number of generalized moments and the number
 #' of columns the number of entities.
 #' @param nestedAlternativeDistribution a numeric vector for the nested alternative distribution
-#' @param nestedAlternativeMoments a numeric vector for the values of the generalized moments
+#' @param nestedAlternativeExpectations a numeric vector for the values of the generalized moments
 #' of the nested alternative distribution
-#'
+#' @noRd
 #' @export
 new_boltzmannTestResult <- function(
     statistic,
@@ -37,21 +37,21 @@ new_boltzmannTestResult <- function(
     sampleSize,
     pValue,
     alternativeDistribution,
-    alternativeMoments,
+    alternativeExpectations,
     hypothesisDistribution,
-    hypothesisMoments,
-    testedMoments,
+    hypothesisExpectations,
+    testedExpectations,
     dataName,
     coefficientMatrix,
     method,
     nestedAlternativeDistribution = NULL,
-    nestedAlternativeMoments = NULL
+    nestedAlternativeExpectations = NULL
 ){
   if(!is.null(nestedAlternativeDistribution)){
     nestedAlternativeDistribution <- as.numeric(nestedAlternativeDistribution)
   }
-  if(!is.null(nestedAlternativeMoments)){
-    nestedAlternativeMoments <- as.numeric(nestedAlternativeMoments)
+  if(!is.null(nestedAlternativeExpectations)){
+    nestedAlternativeExpectations <- as.numeric(nestedAlternativeExpectations)
   }
   res <- list(
     statistic = statistic,
@@ -60,15 +60,15 @@ new_boltzmannTestResult <- function(
     sampleSize = sampleSize,
     pValue = pValue,
     alternativeDistribution = alternativeDistribution,
-    alternativeMoments = alternativeMoments,
+    alternativeExpectations = alternativeExpectations,
     hypothesisDistribution = hypothesisDistribution,
-    hypothesisMoments = hypothesisMoments,
-    testedMoments = testedMoments,
+    hypothesisExpectations = hypothesisExpectations,
+    testedExpectations = testedExpectations,
     dataName = dataName,
     coefficientMatrix = coefficientMatrix,
     method = method,
     nestedAlternativeDistribution = nestedAlternativeDistribution,
-    nestedAlternativeMoments = nestedAlternativeDistribution
+    nestedAlternativeExpectations = nestedAlternativeDistribution
   )
   class(res) = "boltzmannTestResult"
   res
@@ -77,16 +77,16 @@ new_boltzmannTestResult <- function(
 #' `validate_boltzmannTestResult()` checks a `boltzmannTestResult` object for internal consistency.
 #'
 #' @param object a `boltzmannTestResult` class object
-#' @rdname new_boltzmannTestResult
+#' @noRd
 #' @export
 validate_boltzmannTestResult <- function(object){
   ## check whether all list elements are present
   fields <- c(
     "statistic", "iDivergence", "degreesOfFreedom", "sampleSize",
-    "pValue", "alternativeDistribution", "alternativeMoments",
-    "hypothesisDistribution", "hypothesisMoments", "testedMoments",
+    "pValue", "alternativeDistribution", "alternativeExpectations",
+    "hypothesisDistribution", "hypothesisExpectations", "testedExpectations",
     "dataName", "coefficientMatrix", "method", "nestedAlternativeDistribution",
-    "nestedAlternativeMoments"
+    "nestedAlternativeExpectations"
   )
   if (! all(fields %in% names(object))){
     stop("these list elements are missing", setdiff(fields, names(object)))
@@ -131,28 +131,28 @@ validate_boltzmannTestResult <- function(object){
       if (!is.numeric(alternativeDistribution) || !is.atomic(alternativeDistribution)){
         stop("`alternativeDistribution` must be a numeric vector")
       }
-      if (!is.numeric(alternativeMoments) || !is.atomic(alternativeMoments)){
-        stop("`alternativeMoments` must be a numeric vector")
+      if (!is.numeric(alternativeExpectations) || !is.atomic(alternativeExpectations)){
+        stop("`alternativeExpectations` must be a numeric vector")
       }
       if (!any(is.na(hypothesisDistribution))){
         if (!is.numeric(hypothesisDistribution) || !is.atomic(hypothesisDistribution)){
           stop("`hypothesisDistribution` must be a numeric vector")
         }
       }
-      if (!is.numeric(hypothesisMoments) || !is.atomic(hypothesisMoments)){
-        stop("`hypothesisMoments` must be a numeric vector")
+      if (!is.numeric(hypothesisExpectations) || !is.atomic(hypothesisExpectations)){
+        stop("`hypothesisExpectations` must be a numeric vector")
       }
       if (length(hypothesisDistribution) != length(alternativeDistribution)){
         stop("`hypothesisDistribution` and `alternativeDistribution` must have the same length")
       }
-      if (length(hypothesisMoments) != length(alternativeMoments)){
-        stop("`hypothesisMoments` and `alternativeMoments` must have the same length")
+      if (length(hypothesisExpectations) != length(alternativeExpectations)){
+        stop("`hypothesisExpectations` and `alternativeExpectations` must have the same length")
       }
-      if (!is.integer(testedMoments) ||!is.atomic(testedMoments)){
-        stop("`testedMoments` must be a integer vector")
+      if (!is.integer(testedExpectations) ||!is.atomic(testedExpectations)){
+        stop("`testedExpectations` must be a integer vector")
       }
-      if (any(testedMoments < 1) || any(testedMoments > length(hypothesisMoments))){
-        stop("`testedMoments` must be between 1 and the number of hypothesis moments")
+      if (any(testedExpectations < 1) || any(testedExpectations > length(hypothesisExpectations))){
+        stop("`testedExpectations` must be between 1 and the number of hypothesis moments")
       }
 
       if(!is.character(dataName)){
@@ -169,9 +169,9 @@ validate_boltzmannTestResult <- function(object){
           }
         }
       }
-      if (! is.null(nestedAlternativeMoments)){
-        if (!is.numeric(nestedAlternativeMoments) || !is.atomic(nestedAlternativeMoments)){
-          stop("`nestedAlternativeMoments` must be a numeric vector")
+      if (! is.null(nestedAlternativeExpectations)){
+        if (!is.numeric(nestedAlternativeExpectations) || !is.atomic(nestedAlternativeExpectations)){
+          stop("`nestedAlternativeExpectations` must be a numeric vector")
         }
       }
 
@@ -180,6 +180,34 @@ validate_boltzmannTestResult <- function(object){
   object
 }
 
+#' Build a `boltzmannTestResult` class object
+#'
+#' @description
+#' Creates a `boltzmannTestResult` object
+#'
+#' @param statistic a single numeric value corresponding to the value of the (test) statistic
+#' @param iDivergence a single numeric value corresponding to the value of the I-Divergence
+#' of the hypothesis distribution or outer alternative distribution to the (inner) alternative
+#' distribution
+#' @param degreesOfFreedom a single integer value for the degrees of freedom of the Chi^2 distribution.
+#' Gives the number of tested generalized Expectations and must be > 0
+#' @param sampleSize a single integer value for the sample size. Must be > 1
+#' @param pValue a single numeric value between 0 and 1 for the p-value
+#' @param alternativeDistribution a numeric vector for the alternative distribution (usually equal
+#' to the empirical distribution)
+#' @param alternativeExpectations a numeric vector for the values of the generalized moments
+#' of the alternative distribution
+#' @param hypothesisDistribution a numeric vector for the hypothesis distribution
+#' @param hypothesisExpectations a numeric vector for the values of the generalized moments
+#' of the hypothesis distribution
+#' @param testedExpectations integer vector with the indices of the tested moments
+#' @param dataName string with the name of the data
+#' @param coefficientMatrix a numeric matrix holding the coefficient matrix to calculate
+#' the generalized moments. The number of rows must equal the number of generalized moments and the number
+#' of columns the number of entities.
+#' @param nestedAlternativeDistribution a numeric vector for the nested alternative distribution
+#' @param nestedAlternativeExpectations a numeric vector for the values of the generalized moments
+#' of the nested alternative distribution
 #' @export
 boltzmannTestResult <- function(
     statistic,
@@ -188,15 +216,15 @@ boltzmannTestResult <- function(
     sampleSize,
     pValue,
     alternativeDistribution,
-    alternativeMoments,
+    alternativeExpectations,
     hypothesisDistribution,
-    hypothesisMoments,
-    testedMoments,
+    hypothesisExpectations,
+    testedExpectations,
     dataName,
     coefficientMatrix,
     method = "Boltzmann Test",
     nestedAlternativeDistribution = NULL,
-    nestedAlternativeMoments = NULL
+    nestedAlternativeExpectations = NULL
 
 ){
   validate_boltzmannTestResult(
@@ -207,15 +235,15 @@ boltzmannTestResult <- function(
       sampleSize,
       pValue,
       alternativeDistribution,
-      alternativeMoments,
+      alternativeExpectations,
       hypothesisDistribution,
-      hypothesisMoments,
-      testedMoments,
+      hypothesisExpectations,
+      testedExpectations,
       dataName,
       coefficientMatrix,
       method,
       nestedAlternativeDistribution,
-      nestedAlternativeMoments
+      nestedAlternativeExpectations
     )
   )
 }
@@ -232,18 +260,18 @@ print.boltzmannTestResult <- function(object, digits = getOption("digits"), pref
   pval <- format.pval(object$pValue, digits = max(1L, digits - 3L))
   cat(", p-value ", if (substr(pval, 1L, 1L) == "<") pval else paste("=", pval), "\n\n", sep = "")
 
-  testedMoments <- rep(FALSE, length(object$hypothesisMoments))
-  testedMoments[object$testedMoments] = TRUE
+  testedExpectations <- rep(FALSE, length(object$hypothesisExpectations))
+  testedExpectations[object$testedExpectations] = TRUE
   moments <- data.frame(
-    hypothesis = object$hypothesisMoments,
-    alternative = object$alternativeMoments
+    hypothesis = object$hypothesisExpectations,
+    alternative = object$alternativeExpectations
   )
 
-  if (!is.null(object$nestedAlternativeMoments)){
-    moments$nested <- object$nestedAlternativeMoments
+  if (!is.null(object$nestedAlternativeExpectations)){
+    moments$nested <- object$nestedAlternativeExpectations
     moments <- moments[, c("hypothesis", "nested", "alternative")]
   }
-  moments$tested <- ifelse(testedMoments, "*", "")
+  moments$tested <- ifelse(testedExpectations, "*", "")
   print(moments, digits = digits)
 
   invisible(object)

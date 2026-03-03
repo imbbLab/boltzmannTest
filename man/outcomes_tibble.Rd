@@ -12,7 +12,7 @@ outcomes_tibble(data)
 \description{
 Constructs an `outcomes_tibble()`  a subclass of `tibble` with unique rows from an input tibble-like object. It adds two attributes
 \itemize{
-  \item{`empirical`}{the empirical relative frequencies of the outcomes (unique rows)}
-  \item{`sampleSize`}{the sample size given by the number of rows of the input `data.frame`}
+  \item{`empirical` the empirical relative frequencies of the outcomes (unique rows)}
+  \item{`sampleSize` the sample size given by the number of rows of the input `data.frame`}
 }
 }

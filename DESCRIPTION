@@ -1,17 +1,21 @@
 Package: boltzmannTest
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Non-parametric hypothesis testing with the Boltzmann Test
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "Ho-Ryun", "Chung",
+      email = "ho.chung@uni-marburg.de",
       role = c("aut", "cre")
+    ),
+    person(
+      "Orestis", "Loukas",
+      role = c("aut")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: Perform non-parametric hypothesis testing about expectations
+  with the Boltzmann Test.
+License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Imports: Rcpp (>= 1.1.0),pillar,tibble,dplyr,stats

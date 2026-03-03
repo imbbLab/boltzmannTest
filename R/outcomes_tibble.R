@@ -1,23 +1,9 @@
 
-#' Constructor and validator for an `outcomes_tibble` class object
-#'
-#' @description
-#' Creates an `outcomes_tibble` class object from a data frame. The `outcomes_tibble` will have unique rows (=outcomes) and
-#' the empirical relative frequencies of the outcomes in the input `data.frame` and the sample size
-#' \itemize{
-#'   \item{`empirical`}{the empirical relative frequencies of the outcomes (unique rows)}
-#'   \item{`sampleSize`}{the sample size given by the number of rows of the input `data.frame`}
-#' }
-#'
-#' @param data A tibble-like object with unique rows
-#' @param empirical a vector of empirical relative frequencies with one value per row of `data`
-#' @param sampleSize a single numeric value giving the sample size. Should be at least the number of
-#' rows in `data`.
-#'
+
 #' @importFrom dplyr group_by across everything summarise n select
 #' @importFrom tibble new_tibble validate_tibble
 #'
-#' @export
+#' @noRd
 new_outcomes_tibble <- function(data, empirical, sampleSize){
   if(! is.data.frame(data)){
     stop("`data` must be a data frame or tibble")
@@ -45,8 +31,7 @@ new_outcomes_tibble <- function(data, empirical, sampleSize){
 #' `validate_outcomes_tibble()` checks an `outcomes_tibble` for internal consistency.
 #'
 #' @param object an outcomes_tibble class object
-#' @rdname new_outcomes_tibble
-#' @export
+#' @noRd
 validate_outcomes_tibble <- function(object){
   object <- validate_tibble(object)
   empirical <- attr(object, "empirical", exact = TRUE)
@@ -85,14 +70,11 @@ validate_outcomes_tibble <- function(object){
 #' @description
 #' Constructs an `outcomes_tibble()`  a subclass of `tibble` with unique rows from an input tibble-like object. It adds two attributes
 #' \itemize{
-#'   \item{`empirical`}{the empirical relative frequencies of the outcomes (unique rows)}
-#'   \item{`sampleSize`}{the sample size given by the number of rows of the input `data.frame`}
+#'   \item{`empirical` the empirical relative frequencies of the outcomes (unique rows)}
+#'   \item{`sampleSize` the sample size given by the number of rows of the input `data.frame`}
 #' }
 #'
 #' @param data a data frame
-#'
-#'
-#'
 #' @export
 outcomes_tibble <- function(data){
   if (!is.data.frame(data)){
@@ -166,7 +148,8 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
 #' - Column subsetting (`j`) works like a normal tibble; attributes are preserved.
 #'
 #' @return An `outcomes_tibble` object with updated `empirical` and `sampleSize` attributes.
-#'#' @export
+#' @noRd
+#' @export
 `[.outcomes_tibble` <- function(object, i, j, drop = FALSE) {
   out <- NextMethod()
 
@@ -254,6 +237,7 @@ sampleSize.outcomes_tibble <- function(object){
 #' @param ... additional arguments for print
 #' @return Function prints to console
 #' @importFrom tibble as_tibble
+#' @noRd
 #' @export
 print.outcomes_tibble <- function(object, ...) {
   validate_outcomes_tibble(object)
