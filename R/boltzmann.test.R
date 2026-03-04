@@ -58,17 +58,17 @@ boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, 
   if(h$converged != 0){
 
     ## here we cover the case, when some p's got zero
-    a <- if(any(h$p < tolerance)){
+    if(any(h$p < tolerance)){
       warning("hypothesis conditions led to zero probabilities")
       return(boltzmannTestResult(
-        statistic = NA,
-        iDivergence = NA,
+        statistic = Inf,
+        iDivergence = Inf,
         degreesOfFreedom = degreesOfFreedom,
         sampleSize = sampleSize,
-        pValue = NA,
+        pValue = 0,
         alternativeDistribution = empirical(outcomes),
         alternativeExpectations = mu,
-        hypothesisDistribution = rep(NA, NROW(outcomes)),
+        hypothesisDistribution = h$p,
         hypothesisExpectations = eta,
         testedExpectations = testedExpectations,
         dataName = dataName,
@@ -81,7 +81,7 @@ boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, 
     ## "update" hypothesis distribution by the empirical moments
 
     baseDistribution <- if (!is.null(nestedExpectations)){
-      iProjector(G = G, eta = etaNested, v = h$p, maxit = maxit, convTolerance = tolerance)
+      iProjector(G = G[nestedExpectations,], eta = etaNested, v = h$p, maxit = maxit, convTolerance = tolerance)
     } else{
       h
     }
