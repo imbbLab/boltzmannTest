@@ -18,8 +18,8 @@ boltzmannTestResult(
   dataName,
   coefficientMatrix,
   method = "Boltzmann Test",
-  nestedAlternativeDistribution = NULL,
-  nestedAlternativeExpectations = NULL
+  ambientDistribution = NULL,
+  ambientExpectations = NULL
 )
 }
 \arguments{
@@ -55,10 +55,10 @@ of the hypothesis distribution}
 the generalized moments. The number of rows must equal the number of generalized moments and the number
 of columns the number of entities.}
 
-\item{nestedAlternativeDistribution}{a numeric vector for the nested alternative distribution}
+\item{ambientDistribution}{a numeric vector for the ambient alternative distribution}
 
-\item{nestedAlternativeExpectations}{a numeric vector for the values of the generalized moments
-of the nested alternative distribution}
+\item{ambientExpectations}{a numeric vector for the values of the generalized moments
+of the ambient alternative distribution}
 }
 \description{
 Creates a `boltzmannTestResult` object

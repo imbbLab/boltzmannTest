@@ -9,10 +9,10 @@ boltzmann.test <- function(object, ...) UseMethod("boltzmann.test")
 #'
 #' @param outcomes an `outcomes_tibble` object
 #' @param G a numeric matrix with the function values for the outcomes in the rows
-#' and the outcomes in the columns
+#' and the outcomes in the columns for the hypothesis
 #' @param eta a numeric vector with the same number of entries as `G` has rows
 #' @param testedExpectations an integer vector indicating the tested expectations
-#' @param nestedExpectations an integer vector indicating the nested expectations
+#' @param ambientExpectations an integer vector indicating the ambient expectations
 #' @param maxit an integer specifying the maximimal number of iterations used in
 #' the I-projector (default 10000L)
 #' @param tolerance a numeric specifying the numeric tolerance (default
@@ -20,17 +20,17 @@ boltzmann.test <- function(object, ...) UseMethod("boltzmann.test")
 #' @importFrom tibble tibble
 #' @export
 #'
-boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, nestedExpectations = NULL, maxit = 10000L, tolerance = .Machine$double.eps){
+boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, ambientExpectations = NULL, maxit = 10000L, tolerance = .Machine$double.eps){
   if (NROW(G) != length(eta)){
     stop("the number of generalized moments given by `eta` does not match the number of rows in `G`")
   }
-  if (!is.null(nestedExpectations)){
-    nestedExpectations <- as.vector(nestedExpectations)
-    if (any(nestedExpectations) < 1 || any(nestedExpectations) > NROW(G)){
-      stop("the indices of the nested expectations are out of range")
+  if (!is.null(ambientExpectations)){
+    ambientExpectations <- as.vector(ambientExpectations)
+    if (any(ambientExpectations < 1) || any(ambientExpectations > NROW(G))){
+      stop("the indices of the ambient expectations are out of range")
     }
-    if (any(nestedExpectations %in% testedExpectations)){
-      stop("the nested expectations must not include the tested expectations")
+    if (any(ambientExpectations %in% testedExpectations)){
+      stop("the ambient expectations must not include the tested expectations")
     }
   }
   testedExpectations <- as.integer(testedExpectations)
@@ -44,12 +44,16 @@ boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, 
   dataName <- deparse(substitute(outcomes))
   sampleSize <- sampleSize(outcomes)
   ## determine the generalized moments for the empirical distribution
-  mu <- (G %*% empirical(outcomes))[, 1]
+  mu <- if(is.null(ambientExpectations)){
+    (G %*% empirical(outcomes))[, 1]
+  } else{
+    (G2 %*% empirical(outcomes))[,1]
+  }
 
   etaNested <- NULL
-  if (!is.null(nestedExpectations)){
+  if (!is.null(ambientExpectations)){
     etaNested <- eta
-    eta[nestedExpectations] = mu[nestedExpectations]
+    etaNested[ambientExpectations] <- mu[ambientExpectations]
   }
 
   ## 1. project empirical distribution to hypothesis linear family
@@ -73,15 +77,19 @@ boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, 
         testedExpectations = testedExpectations,
         dataName = dataName,
         coefficientMatrix = G,
-        nestedAlternativeDistribution = if (is.null(nestedExpectations)) NULL else rep(NA, NROW(outcomes)),
-        nestedAlternativeExpectations = if (is.null(nestedExpectations)) NULL else etaNested
+        ambientDistribution = if (is.null(ambientExpectations)) NULL else rep(NA, NROW(outcomes)),
+        ambientExpectations = if (is.null(ambientExpectations)) NULL else rep(NA, NROW(G2))
       ))
       ## we may remove the offending entry and try again?
     }
     ## "update" hypothesis distribution by the empirical moments
 
-    baseDistribution <- if (!is.null(nestedExpectations)){
-      iProjector(G = G[nestedExpectations,], eta = etaNested, v = h$p, maxit = maxit, convTolerance = tolerance)
+    ## need another one
+    baseDistribution <- if (!is.null(ambientExpectations)){
+      p <- iProjector(G = G[-testedExpectations, ], eta = etaNested[-testedExpectations], v = h$p, maxit = maxit, convTolerance = tolerance)
+      etaNested <- (G %*% p$p)[,1]
+      mu[testedExpectations] <- mu[testedExpectations] - etaNested[testedExpectations]
+      p
     } else{
       h
     }
@@ -102,8 +110,8 @@ boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, 
       testedExpectations = testedExpectations,
       dataName = dataName,
       coefficientMatrix = G,
-      nestedAlternativeDistribution = if (is.null(nestedExpectations)) NULL else baseDistribution$p,
-      nestedAlternativeExpectations = etaNested
+      ambientDistribution = if (is.null(ambientExpectations)) NULL else baseDistribution$p,
+      ambientExpectations = etaNested
     )
   } else{
     boltzmannTestResult(
@@ -119,8 +127,8 @@ boltzmann.test.outcomes_tibble <-function(outcomes, G, eta, testedExpectations, 
       testedExpectations = testedExpectations,
       dataName = dataName,
       coefficientMatrix = G,
-      nestedAlternativeDistribution = if (is.null(nestedExpectations)) NULL else rep(NA, NROW(outcomes)),
-      nestedAlternativeExpectations = if (is.null(nestedExpectations)) NULL else etaNested
+      ambientDistribution = if (is.null(ambientExpectations)) NULL else rep(NA, NROW(outcomes)),
+      ambientExpectations = if (is.null(ambientExpectations)) NULL else etaNested
     )
   }
 

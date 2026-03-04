@@ -4,6 +4,7 @@
 #' @importFrom tibble new_tibble validate_tibble
 #'
 #' @noRd
+#' @export
 new_outcomes_tibble <- function(data, empirical, sampleSize){
   if(! is.data.frame(data)){
     stop("`data` must be a data frame or tibble")
@@ -32,6 +33,7 @@ new_outcomes_tibble <- function(data, empirical, sampleSize){
 #'
 #' @param object an outcomes_tibble class object
 #' @noRd
+#' @export
 validate_outcomes_tibble <- function(object){
   object <- validate_tibble(object)
   empirical <- attr(object, "empirical", exact = TRUE)
@@ -160,7 +162,7 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
     stop("subsetting removed all rows.")
   }
 
-  validate_outcome(
+  validate_outcomes_tibble(
     new_outcomes_tibble(
       out,
       empirical = empirical / sum(empirical),

@@ -25,9 +25,9 @@
 #' @param coefficientMatrix a numeric matrix holding the coefficient matrix to calculate
 #' the generalized moments. The number of rows must equal the number of generalized moments and the number
 #' of columns the number of entities.
-#' @param nestedAlternativeDistribution a numeric vector for the nested alternative distribution
-#' @param nestedAlternativeExpectations a numeric vector for the values of the generalized moments
-#' of the nested alternative distribution
+#' @param ambientDistribution a numeric vector for the ambient alternative distribution
+#' @param ambientExpectations a numeric vector for the values of the generalized moments
+#' of the ambient alternative distribution
 #' @noRd
 #' @export
 new_boltzmannTestResult <- function(
@@ -44,14 +44,14 @@ new_boltzmannTestResult <- function(
     dataName,
     coefficientMatrix,
     method,
-    nestedAlternativeDistribution = NULL,
-    nestedAlternativeExpectations = NULL
+    ambientDistribution = NULL,
+    ambientExpectations = NULL
 ){
-  if(!is.null(nestedAlternativeDistribution)){
-    nestedAlternativeDistribution <- as.numeric(nestedAlternativeDistribution)
+  if(!is.null(ambientDistribution)){
+    ambientDistribution <- as.numeric(ambientDistribution)
   }
-  if(!is.null(nestedAlternativeExpectations)){
-    nestedAlternativeExpectations <- as.numeric(nestedAlternativeExpectations)
+  if(!is.null(ambientExpectations)){
+    ambientExpectations <- as.numeric(ambientExpectations)
   }
   res <- list(
     statistic = statistic,
@@ -67,8 +67,8 @@ new_boltzmannTestResult <- function(
     dataName = dataName,
     coefficientMatrix = coefficientMatrix,
     method = method,
-    nestedAlternativeDistribution = nestedAlternativeDistribution,
-    nestedAlternativeExpectations = nestedAlternativeDistribution
+    ambientDistribution = ambientDistribution,
+    ambientExpectations = ambientExpectations
   )
   class(res) = "boltzmannTestResult"
   res
@@ -85,8 +85,8 @@ validate_boltzmannTestResult <- function(object){
     "statistic", "iDivergence", "degreesOfFreedom", "sampleSize",
     "pValue", "alternativeDistribution", "alternativeExpectations",
     "hypothesisDistribution", "hypothesisExpectations", "testedExpectations",
-    "dataName", "coefficientMatrix", "method", "nestedAlternativeDistribution",
-    "nestedAlternativeExpectations"
+    "dataName", "coefficientMatrix", "method", "ambientDistribution",
+    "ambientExpectations"
   )
   if (! all(fields %in% names(object))){
     stop("these list elements are missing", setdiff(fields, names(object)))
@@ -162,16 +162,16 @@ validate_boltzmannTestResult <- function(object){
       if (!is.matrix(coefficientMatrix) || !is.atomic(coefficientMatrix)){
         stop("`coefficientMatrix` must be a numeric matrix")
       }
-      if (! is.null(nestedAlternativeDistribution)){
-        if (!any(is.na(nestedAlternativeDistribution))){
-          if (!is.numeric(nestedAlternativeDistribution) || !is.atomic(nestedAlternativeDistribution)){
-            stop("`nestedAlternativeDistribution` must be a numeric vector")
+      if (! is.null(ambientDistribution)){
+        if (!any(is.na(ambientDistribution))){
+          if (!is.numeric(ambientDistribution) || !is.atomic(ambientDistribution)){
+            stop("`ambientDistribution` must be a numeric vector")
           }
         }
       }
-      if (! is.null(nestedAlternativeExpectations)){
-        if (!is.numeric(nestedAlternativeExpectations) || !is.atomic(nestedAlternativeExpectations)){
-          stop("`nestedAlternativeExpectations` must be a numeric vector")
+      if (! is.null(ambientExpectations)){
+        if (!is.numeric(ambientExpectations) || !is.atomic(ambientExpectations)){
+          stop("`ambientExpectations` must be a numeric vector")
         }
       }
 
@@ -205,9 +205,9 @@ validate_boltzmannTestResult <- function(object){
 #' @param coefficientMatrix a numeric matrix holding the coefficient matrix to calculate
 #' the generalized moments. The number of rows must equal the number of generalized moments and the number
 #' of columns the number of entities.
-#' @param nestedAlternativeDistribution a numeric vector for the nested alternative distribution
-#' @param nestedAlternativeExpectations a numeric vector for the values of the generalized moments
-#' of the nested alternative distribution
+#' @param ambientDistribution a numeric vector for the ambient alternative distribution
+#' @param ambientExpectations a numeric vector for the values of the generalized moments
+#' of the ambient alternative distribution
 #' @export
 boltzmannTestResult <- function(
     statistic,
@@ -223,8 +223,8 @@ boltzmannTestResult <- function(
     dataName,
     coefficientMatrix,
     method = "Boltzmann Test",
-    nestedAlternativeDistribution = NULL,
-    nestedAlternativeExpectations = NULL
+    ambientDistribution = NULL,
+    ambientExpectations = NULL
 
 ){
   validate_boltzmannTestResult(
@@ -242,8 +242,8 @@ boltzmannTestResult <- function(
       dataName,
       coefficientMatrix,
       method,
-      nestedAlternativeDistribution,
-      nestedAlternativeExpectations
+      ambientDistribution,
+      ambientExpectations
     )
   )
 }
@@ -267,9 +267,9 @@ print.boltzmannTestResult <- function(object, digits = getOption("digits"), pref
     alternative = object$alternativeExpectations
   )
 
-  if (!is.null(object$nestedAlternativeExpectations)){
-    moments$nested <- object$nestedAlternativeExpectations
-    moments <- moments[, c("hypothesis", "nested", "alternative")]
+  if (!is.null(object$ambientExpectations)){
+    moments$ambient <- object$ambientExpectations
+    moments <- moments[, c("hypothesis", "ambient", "alternative")]
   }
   moments$tested <- ifelse(testedExpectations, "*", "")
   print(moments, digits = digits)

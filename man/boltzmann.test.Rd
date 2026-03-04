@@ -14,7 +14,7 @@ boltzmann.test(object, ...)
   G,
   eta,
   testedExpectations,
-  nestedExpectations = NULL,
+  ambientExpectations = NULL,
   maxit = 10000L,
   tolerance = .Machine$double.eps
 )
@@ -27,13 +27,13 @@ boltzmann.test(object, ...)
 \item{outcomes}{an `outcomes_tibble` object}
 
 \item{G}{a numeric matrix with the function values for the outcomes in the rows
-and the outcomes in the columns}
+and the outcomes in the columns for the hypothesis}
 
 \item{eta}{a numeric vector with the same number of entries as `G` has rows}
 
 \item{testedExpectations}{an integer vector indicating the tested expectations}
 
-\item{nestedExpectations}{an integer vector indicating the nested expectations}
+\item{ambientExpectations}{an integer vector indicating the ambient expectations}
 
 \item{maxit}{an integer specifying the maximimal number of iterations used in
 the I-projector (default 10000L)}
