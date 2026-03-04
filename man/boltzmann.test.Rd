@@ -80,3 +80,70 @@ of that level of all groups except the first versus the first group is compared.
 If only a `rhs` is given, a multivariate comparison to the given `nu` is performed. If the target
 is numeric the mean is calculated. If the target is a factor the prevalence is calculated.
 }
+\examples{
+## examples using the NHANES data
+data(nhanes)
+## testing whether females are on average the same height as males
+with(nhanes, boltzmann.test(BMXHT[RIAGENDR == "female"], BMXHT[RIAGENDR == "male"]))
+
+## testing whether females weigh on average 10 kg less than males
+boltzmann.test(BMXWT ~ RIAGENDR, data = nhanes, nu = -10)
+
+## testing whether females have the same average weight and height as males
+boltzmann.test(cbind(BMXWT, BMXHT) ~ RIAGENDR, data = nhanes)
+
+data(kidneyStones)
+## testing whether the treatment success is the same in treatment A versus B
+boltzmann.test(success ~ treatment, data = kidneyStones)
+
+## testing whether the treatment success is the same in treatment A versus B
+## and small and large stone sizes (four groups)
+boltzmann.test(success ~ treatment + stoneSize, data = kidneyStones)
+
+## nested hypothesis testing, deconfounding
+G <- with(
+  outcomes,
+  rbind(
+    norm = 1,
+    # structural expectation fraction treatment A
+    treatment_A = treatment == "A",
+    # ambient expectation fraction small stone size given treatment B
+    stoneSize_small.treatment_B = (stoneSize == "small" & treatment == "B") / 0.5,
+    # ambient expectation fraction small stone size given treatment A
+    stoneSize_small.treatment_A = (stoneSize == "small" & treatment == "A") / 0.5,
+    # tested expectation: success rate treatment A versus B
+    "success_yes:B_vs_A" = c(0, -2, 0, 2, 0, -2, 0, 2)
+  )
+)
+eta <- c(
+  norm = 1,
+  treatment_A = 0.5,
+  # overall frequency of small stones is 0.51
+  stoneSize_small.treatment_B = 0.51,
+  stoneSize_small.treatment_A = 0.51,
+  "success_yes:B_vs_A" = 0.0
+)
+## generate outcome_tibble object
+outcomes <- outcomes_tibble(kidneyStones)
+boltzmann.test(
+  outcomes = outcomes,
+  G = G,
+  eta = eta,
+  testedExpectations = 5,
+  ambientExpectations = c(3,4)
+)
+## 1. project to a hypothesis with stone size frequencies the same in the
+##    treatment groups and not difference in the success rate between treatments
+## 2. project to the ambient alternative with stone size frequencies as the
+##    observed ones. Note the difference in the success rate in treatment B
+##    versus A of roughly 10.1\%.
+## 3. project back to the empirical. Now the difference in the success rate in
+##    treatment B versus A is 4.6\%.
+## Since changing the frequencies of the stone sizes to the observed ones
+## already induces a shift in the difference from 0\% to 10.1\%, we see
+## that the real difference in the success rate is 4.6\% - 10.1\% = -5.5\%.
+## The effect size estimate has reversed its sign as suggested by the analysis
+## stratified by stone size. Note, that this is not significant at
+## significance level 5\%.
+
+}
