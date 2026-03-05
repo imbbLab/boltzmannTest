@@ -2,17 +2,27 @@
 % Please edit documentation in R/outcomes_tibble.R
 \name{empirical}
 \alias{empirical}
-\title{Obtain the empirical relative frequencies}
+\alias{empirical<-}
+\title{Get or set the `empirical` attribute of an `outcomes_tibble` object}
 \usage{
 empirical(object)
+
+empirical(object) <- value
 }
 \arguments{
 \item{object}{an `outcomes_tibble` object}
+
+\item{value}{an non-negative numeric vector of the same length
+as the empirical vector that sums to 1. Corresponds to the new empirical
+distribution,}
 }
 \value{
-a numeric vector of length = `nrow(object)` with the empirical relative
-frequencies
+a numeric vector of length = `nrow(object)` with the empirical
+relative frequencies
 }
 \description{
-Accessor for the `empirical` attribute of an `outcomes_tibble` object
+`empirical()` returns the `empirical` attribute of an `outcomes_tibble`
+object, i.e. the empirical frequencies of the outcomes
+
+`empirical<-` sets the `empirical` attribute of an `outcomes_tibble` object
 }

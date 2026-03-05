@@ -16,8 +16,20 @@ Authors@R: c(
 Description: Perform non-parametric hypothesis testing about expectations
   with the Boltzmann Test.
 License: GPL (>= 2)
+URL: https://gitlab.uni-marburg.de/fb20/ag-chung/boltzmanntest
+BugReports: https://gitlab.uni-marburg.de/fb20/ag-chung/boltzmanntest/-/issues
+Imports:
+  Rcpp (>= 1.1.0),
+  tibble,
+  dplyr,
+  stats
+LinkingTo:
+  Rcpp, 
+  RcppArmadillo
+NeedsCompilation: yes
 Encoding: UTF-8
 LazyData: true
-Imports: Rcpp (>= 1.1.0),pillar,tibble,dplyr,stats
-LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.3.3
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

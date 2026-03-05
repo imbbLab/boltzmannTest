@@ -8,6 +8,14 @@
 \description{
 Perform non-parametric hypothesis testing about expectations with the Boltzmann Test.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://gitlab.uni-marburg.de/fb20/ag-chung/boltzmanntest}
+  \item Report bugs at \url{https://gitlab.uni-marburg.de/fb20/ag-chung/boltzmanntest/-/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Ho-Ryun Chung \email{ho.chung@uni-marburg.de}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/outcomes_tibble.R
 \name{sampleSize}
 \alias{sampleSize}
-\title{Obtain the sample size}
+\title{Get the sample size}
 \usage{
 sampleSize(object)
 }

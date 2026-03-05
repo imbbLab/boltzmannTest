@@ -2,17 +2,35 @@
 % Please edit documentation in R/outcomes_tibble.R
 \name{outcomes_tibble}
 \alias{outcomes_tibble}
-\title{Build an `outcomes_tibble` class object}
+\title{Build an `outcomes_tibble` object}
 \usage{
 outcomes_tibble(data)
 }
 \arguments{
 \item{data}{a data frame}
 }
-\description{
-Constructs an `outcomes_tibble()`  a subclass of `tibble` with unique rows from an input tibble-like object. It adds two attributes
-\itemize{
-  \item{`empirical` the empirical relative frequencies of the outcomes (unique rows)}
-  \item{`sampleSize` the sample size given by the number of rows of the input `data.frame`}
+\value{
+An `outcomes_tibble` object
 }
+\description{
+`outcomes_tibble()` constructs an `outcomes_tibble()` from a data.frame-like
+object. It will have two attributes:
+ * `empirical` the empirical relative frequencies of the outcomes
+   (unique rows)
+ * `sampleSize` the sample size given by the number of rows of the
+   input `data.frame`
+}
+\examples{
+## use the data from NHANES
+data(nhanes)
+## select only BMXWT and RIAGENDR columns
+data <- subset(nhanes, select = c(BMXWT, RIAGENDR))
+## look at data
+str(data)
+## create an outcomes_tibble object
+outcomes <- outcomes_tibble(data)
+str(outcomes)
+
+
+
 }

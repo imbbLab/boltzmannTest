@@ -5,29 +5,35 @@
 #' @description
 #' Creates a `boltzmannTestResult` object
 #'
-#' @param statistic a single numeric value corresponding to the value of the (test) statistic
-#' @param iDivergence a single numeric value corresponding to the value of the I-Divergence
-#' of the hypothesis distribution or outer alternative distribution to the (inner) alternative
-#' distribution
-#' @param degreesOfFreedom a single integer value for the degrees of freedom of the Chi^2 distribution.
-#' Gives the number of tested generalized Expectations and must be > 0
+#' @param statistic a single numeric value corresponding to the value of the
+#' (test) statistic
+#' @param iDivergence a single numeric value corresponding to the value of the
+#' I-Divergence of the hypothesis distribution or ambient alternative
+#' distribution to the (inner) alternative distribution
+#' @param degreesOfFreedom a single integer value for the degrees of freedom
+#' of the Chi^2 distribution. Gives the number of tested Expectations and
+#' must be > 0
 #' @param sampleSize a single integer value for the sample size. Must be > 1
 #' @param pValue a single numeric value between 0 and 1 for the p-value
-#' @param alternativeDistribution a numeric vector for the alternative distribution (usually equal
-#' to the empirical distribution)
-#' @param alternativeExpectations a numeric vector for the values of the generalized moments
-#' of the alternative distribution
-#' @param hypothesisDistribution a numeric vector for the hypothesis distribution
-#' @param hypothesisExpectations a numeric vector for the values of the generalized moments
-#' of the hypothesis distribution
-#' @param testedExpectations integer vector with the indices of the tested moments
+#' @param alternativeDistribution a numeric vector for the alternative
+#' distribution (usually equal to the empirical distribution)
+#' @param alternativeExpectations a numeric vector for the values of the
+#' expectations of the alternative distribution
+#' @param hypothesisDistribution a numeric vector for the
+#' hypothesis distribution
+#' @param hypothesisExpectations a numeric vector for the values of the
+#' generalized moments of the hypothesis distribution
+#' @param testedExpectations integer vector with the indices of the tested
+#' expectations
 #' @param dataName string with the name of the data
-#' @param coefficientMatrix a numeric matrix holding the coefficient matrix to calculate
-#' the generalized moments. The number of rows must equal the number of generalized moments and the number
-#' of columns the number of entities.
-#' @param ambientDistribution a numeric vector for the ambient alternative distribution
-#' @param ambientExpectations a numeric vector for the values of the generalized moments
-#' of the ambient alternative distribution
+#' @param coefficientMatrix a numeric matrix holding the coefficient matrix
+#' to calculate the generalized moments. The number of rows must equal the
+#' number of generalized moments and the number of columns the number of
+#' entities.
+#' @param ambientDistribution a numeric vector for the ambient alternative
+#' distribution
+#' @param ambientExpectations a numeric vector for the values of the
+#' expectations of the ambient alternative distribution
 #' @noRd
 #' @export
 new_boltzmannTestResult <- function(
@@ -70,11 +76,12 @@ new_boltzmannTestResult <- function(
     ambientDistribution = ambientDistribution,
     ambientExpectations = ambientExpectations
   )
-  class(res) = "boltzmannTestResult"
+  class(res) <- "boltzmannTestResult"
   res
 }
 #' @description
-#' `validate_boltzmannTestResult()` checks a `boltzmannTestResult` object for internal consistency.
+#' `validate_boltzmannTestResult()` checks a `boltzmannTestResult` object
+#' for internal consistency.
 #'
 #' @param object a `boltzmannTestResult` class object
 #' @noRd
@@ -128,14 +135,17 @@ validate_boltzmannTestResult <- function(object){
         }
       }
 
-      if (!is.numeric(alternativeDistribution) || !is.atomic(alternativeDistribution)){
+      if (!is.numeric(alternativeDistribution) ||
+          !is.atomic(alternativeDistribution)){
         stop("`alternativeDistribution` must be a numeric vector")
       }
-      if (!is.numeric(alternativeExpectations) || !is.atomic(alternativeExpectations)){
+      if (!is.numeric(alternativeExpectations) ||
+          !is.atomic(alternativeExpectations)){
         stop("`alternativeExpectations` must be a numeric vector")
       }
       if (!any(is.na(hypothesisDistribution))){
-        if (!is.numeric(hypothesisDistribution) || !is.atomic(hypothesisDistribution)){
+        if (!is.numeric(hypothesisDistribution) ||
+            !is.atomic(hypothesisDistribution)){
           stop("`hypothesisDistribution` must be a numeric vector")
         }
       }
@@ -143,10 +153,12 @@ validate_boltzmannTestResult <- function(object){
         stop("`hypothesisExpectations` must be a numeric vector")
       }
       if (length(hypothesisDistribution) != length(alternativeDistribution)){
-        stop("`hypothesisDistribution` and `alternativeDistribution` must have the same length")
+        stop("`hypothesisDistribution` and `alternativeDistribution`
+             must have the same length")
       }
       if (length(hypothesisExpectations) != length(alternativeExpectations)){
-        stop("`hypothesisExpectations` and `alternativeExpectations` must have the same length")
+        stop("`hypothesisExpectations` and `alternativeExpectations`
+             must have the same length")
       }
       if (!is.integer(testedExpectations) ||!is.atomic(testedExpectations)){
         stop("`testedExpectations` must be a integer vector")
@@ -261,7 +273,7 @@ print.boltzmannTestResult <- function(object, digits = getOption("digits"), pref
   cat(", p-value ", if (substr(pval, 1L, 1L) == "<") pval else paste("=", pval), "\n\n", sep = "")
 
   testedExpectations <- rep(FALSE, length(object$hypothesisExpectations))
-  testedExpectations[object$testedExpectations] = TRUE
+  testedExpectations[object$testedExpectations] <- TRUE
   moments <- data.frame(
     hypothesis = object$hypothesisExpectations,
     alternative = object$alternativeExpectations

@@ -1,23 +1,26 @@
-
-
+#' Construct for an `outcomes_tibble` object
+#'
+#' Constructs an `outcomes_tibble`  object with unique
+#' rows from an input tibble-like object. It adds two attributes
+#' \itemize{
+#'   \item{`empirical` the empirical relative frequencies of the outcomes
+#'   (unique rows)}
+#'   \item{`sampleSize` the sample size given by the number of rows of the
+#'   input `data.frame`}
+#' }
+#'
+#' @param data a data frame with outcomes in the rows
+#' @param empirical a numeric vector with one value per row of `data`
+#' @param sampleSize an integer value indicating the sample Size
+#'
+#' @returns An `outcomes_tibble` object
+#'
 #' @importFrom dplyr group_by across everything summarise n select
 #' @importFrom tibble new_tibble validate_tibble
 #'
-#' @noRd
-#' @export
+#' @keywords internal
 new_outcomes_tibble <- function(data, empirical, sampleSize){
-  if(! is.data.frame(data)){
-    stop("`data` must be a data frame or tibble")
-  }
-  if(!is.numeric(empirical)){
-    stop("`empirical` must be numeric")
-  }
-  if(length(empirical) != nrow(data)){
-    stop("`empirical` must have one value per row of `data`. There are", length(empirical), "entries in `empirical` and", nrow(data), "rows in `data`")
-  }
-  if(length(sampleSize) != 1 || !is.numeric(sampleSize)){
-    stop("`sampleSize` must be a single numeric value")
-  }
+
   validate_outcomes_tibble(
     new_tibble(
       data,
@@ -28,12 +31,16 @@ new_outcomes_tibble <- function(data, empirical, sampleSize){
     )
   )
 }
-#' @description
-#' `validate_outcomes_tibble()` checks an `outcomes_tibble` for internal consistency.
+#' Validate an `outcomes_tibble` class object
+#'
+#' Checks an `outcomes_tibble` for internal consistency.
 #'
 #' @param object an outcomes_tibble class object
-#' @noRd
-#' @export
+#'
+#' @returns An `outcomes_tibble` object. If validation fails it stops with
+#' an error message about what could not be validated.
+#'
+#' @keywords internal
 validate_outcomes_tibble <- function(object){
   object <- validate_tibble(object)
   empirical <- attr(object, "empirical", exact = TRUE)
@@ -48,7 +55,9 @@ validate_outcomes_tibble <- function(object){
     stop("`empirical` must be numeric")
   }
   if(length(empirical) != nrow(object)){
-    stop("`empirical` must have one value per row of `data`. There are", length(empirical), "entries in `empirical` and", nrow(object), "rows in `data`")
+    stop("`empirical` must have one value per row of `data`. There are ",
+         length(empirical), " entries in `empirical` and ", nrow(object),
+         " rows in `data`")
   }
   if (any(empirical < 0)){
     stop("`empirical` contains negative entries")
@@ -57,7 +66,7 @@ validate_outcomes_tibble <- function(object){
     stop("`empirical` does not sum to 1")
   }
   if (sampleSize < nrow(object)){
-    stop("fewer observations", sampleSize, "than outcomes", nrow(object), call. = FALSE)
+    stop("fewer observations", sampleSize, "than outcomes", nrow(object))
   }
   if (!is.numeric(sampleSize) || length(sampleSize) != 1) {
     stop("`sampleSize` must be a single number.")
@@ -67,21 +76,48 @@ validate_outcomes_tibble <- function(object){
   }
   object
 }
-#' Build an `outcomes_tibble` class object
+
+#' Build an `outcomes_tibble` object
 #'
-#' @description
-#' Constructs an `outcomes_tibble()`  a subclass of `tibble` with unique rows from an input tibble-like object. It adds two attributes
-#' \itemize{
-#'   \item{`empirical` the empirical relative frequencies of the outcomes (unique rows)}
-#'   \item{`sampleSize` the sample size given by the number of rows of the input `data.frame`}
-#' }
+#' `outcomes_tibble()` constructs an `outcomes_tibble()` from a data.frame-like
+#' object. It will have two attributes:
+#'  * `empirical` the empirical relative frequencies of the outcomes
+#'    (unique rows)
+#'  * `sampleSize` the sample size given by the number of rows of the
+#'    input `data.frame`
 #'
 #' @param data a data frame
+#'
+#' @examples
+#' ## use the data from NHANES
+#' data(nhanes)
+#' ## select only BMXWT and RIAGENDR columns
+#' data <- subset(nhanes, select = c(BMXWT, RIAGENDR))
+#' ## look at data
+#' str(data)
+#' ## create an outcomes_tibble object
+#' outcomes <- outcomes_tibble(data)
+#' str(outcomes)
+#'
+#'
+#'
+#' @returns An `outcomes_tibble` object
+#'
 #' @export
 outcomes_tibble <- function(data){
+  ## check if data is a data.frame
   if (!is.data.frame(data)){
     stop("df should be a data frame but is", class(data))
   }
+  ## detect and remove cases with non-finite and NA entries
+  completeCases <- completeCases_internal(data)
+  if (any(! completeCases)){
+    warning("there are rows with non-finite and/or NA values. Removing them.")
+    data <- data[completeCases, ]
+
+  }
+  ## convert character variables to factors
+  data <- data.frame(as.list(data), stringsAsFactors = TRUE, check.names = FALSE)
   ## the number of rows is the sample size
   sampleSize <- nrow(data)
   ## group data by all columns
@@ -97,21 +133,21 @@ outcomes_tibble <- function(data){
 
 }
 
-#' `dplyr` row slicing
+#' `dplyr` row slicing for an `outcomes_tibble`
 #'
-#' @description
-#' This function is automatically called after the `dplyr` functions `filter`, `slice`,
-#' `arrange` etc. It automatically updates (marginalize) the empirical relative frequencies
-#' and the sample size
+#'
+#' This function is automatically called after the `dplyr` functions `filter`,
+#' `slice`, `arrange` etc. It automatically updates (marginalize) the empirical
+#' relative frequencies and the sample size
 #'
 #' @param object an `outcomes_tibble` object
 #' @param i row indices selected by an upstream `dplyr` function
 #' @param ... additional parameters
 #'
+#' @returns A sliced `outcomes_tibble`
+#'
 #' @importFrom dplyr dplyr_row_slice
-#' @noRd
 #' @export
-
 dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
   if (length(i) == 0) {
     stop("subsetting removed all rows.")
@@ -123,8 +159,8 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
   sampleSize  <- attr(object, "sampleSize")
 
 
-  validate_outcomes(
-    new_outcomes(
+  validate_outcomes_tibble(
+    new_outcomes_tibble(
       out,
       empirical = empirical / sum(empirical),
       sampleSize = sum(empirical * sampleSize)
@@ -135,22 +171,26 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
 #' Subset an `outcomes_tibble`
 #'
 #' Subsetting an `outcomes_tibble` works similarily to subsetting a `tibble`,
-#' but the object maintains an aligned `empirical` frequency attribute and a correspond
+#' but the object maintains an aligned `empirical` frequency attribute and
 #' sample size
 #'
 #' @param object an `outcomes_tibble` object
 #' @param i row indices or logical vector of length `nrow(object)`
 #' @param j col indices, names, or logical vector of length `ncol(object)`
-#' @param drop logical (default = FALSE). If `TRUE`, simplifies the result if possible.
+#' @param drop logical (default = FALSE). If `TRUE`, simplifies the result if
+#' possible.
 #' @details
-#' - When subsetting rows, the relative frequencies (`empirical`) are **renormalized**
+#' - When subsetting rows, the relative frequencies (`empirical`) are
+#'   **renormalized**
 #'   to sum to 1 for the selected rows.
 #' - The `sampleSize` attribute is updated to reflect the sum of the original
 #'   data points represented by the selected rows.
-#' - Column subsetting (`j`) works like a normal tibble; attributes are preserved.
+#' - Column subsetting (`j`) works like a normal tibble; attributes are
+#'   preserved.
 #'
-#' @return An `outcomes_tibble` object with updated `empirical` and `sampleSize` attributes.
-#' @noRd
+#' @return An `outcomes_tibble` object with updated `empirical` and
+#' `sampleSize` attributes.
+#'
 #' @export
 `[.outcomes_tibble` <- function(object, i, j, drop = FALSE) {
   out <- NextMethod()
@@ -162,6 +202,20 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
     stop("subsetting removed all rows.")
   }
 
+
+  ## group data by all remaining columns
+  out <- group_by(out, across(everything()))
+  empirical <- vapply(
+    X = attr(out, "groups")$.rows,
+    FUN = function(i){
+      sum(empirical[i])
+    },
+    FUN.VALUE = 1
+  )
+
+  out <- attr(out, "groups")
+  out$.rows <- NULL
+  attr(out, ".drop") <- NULL
   validate_outcomes_tibble(
     new_outcomes_tibble(
       out,
@@ -171,14 +225,17 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
   )
 }
 
-#' Obtain the empirical relative frequencies
+#' Get or set the `empirical` attribute of an `outcomes_tibble` object
 #'
-#' Accessor for the `empirical` attribute of an `outcomes_tibble` object
+#' @description
+#' `empirical()` returns the `empirical` attribute of an `outcomes_tibble`
+#' object, i.e. the empirical frequencies of the outcomes
 #'
 #' @param object an `outcomes_tibble` object
-#' @return a numeric vector of length = `nrow(object)` with the empirical relative
-#' frequencies
+#' @return a numeric vector of length = `nrow(object)` with the empirical
+#' relative frequencies
 #'
+#' @rdname empirical
 #' @export
 empirical <- function(object) UseMethod("empirical")
 #' @export
@@ -186,20 +243,22 @@ empirical.outcomes_tibble <- function(object){
   attr(object, "empirical", exact = TRUE)
 }
 
-#' Set the empirical distribution
+#' empirical<-
 #'
-#' Setter for the `empirical` attribute of an `outcomes_tibble` object
+#' @description
+#' `empirical<-` sets the `empirical` attribute of an `outcomes_tibble` object
 #'
 #' @param object an `outcomes_tibble` object
 #' @param value an non-negative numeric vector of the same length
 #' as the empirical vector that sums to 1. Corresponds to the new empirical
 #' distribution,
 #'
+#' @rdname empirical
 #' @export
-`empirical<-` <- function(object, value, tolerance = .Machine$double.eps) UseMethod("empirical<-")
+`empirical<-` <- function(object, value) UseMethod("empirical<-")
 
 #' @export
-`empirical<-.outcomes_tibble` <- function(object, value, tolerance = .Machine$double.eps){
+`empirical<-.outcomes_tibble` <- function(object, value){
   if (!is.numeric(value)){
     stop("`value` must be a numeric vector")
   }
@@ -209,7 +268,7 @@ empirical.outcomes_tibble <- function(object){
   if (any(value < 0)){
     stop("`value` must be non-negative")
   }
-  if(abs(sum(value) - 1) >= sqrt(tolerance)){
+  if(abs(sum(value) - 1) >= sqrt(.Machine$double.eps)){
     warning("`value` should sum to 1. Normalizing to 1")
     value <- value / sum(value)
   }
@@ -218,7 +277,7 @@ empirical.outcomes_tibble <- function(object){
   object
 }
 
-#' Obtain the sample size
+#' Get the sample size
 #'
 #' Accessor for the `sampleSize` attribute of an `outcomes_tibble` object
 #' @param object an `outcomes_tibble` object
@@ -239,7 +298,7 @@ sampleSize.outcomes_tibble <- function(object){
 #' @param ... additional arguments for print
 #' @return Function prints to console
 #' @importFrom tibble as_tibble
-#' @noRd
+#'
 #' @export
 print.outcomes_tibble <- function(object, ...) {
   validate_outcomes_tibble(object)
@@ -258,4 +317,17 @@ print.outcomes_tibble <- function(object, ...) {
   invisible(object)
 }
 
+completeCases_internal <- function(data){
+  ## check for rows with NAs
+  completeCases <- do.call(
+    "rbind",
+    lapply(
+      data,
+      function(x){
+        is.finite(x) | (! is.numeric(x) & !is.na(x))
+      }
+    )
+  )
+  apply(completeCases, 2, all)
+}
 

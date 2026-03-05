@@ -26,14 +26,16 @@ boltzmann.test(object, ...)
 \arguments{
 \item{outcomes}{an `outcomes_tibble` object}
 
-\item{G}{a numeric matrix with the function values for the outcomes in the rows
-and the outcomes in the columns for the hypothesis}
+\item{G}{a numeric matrix with the function values for the outcomes in the
+rows and the outcomes in the columns for the hypothesis}
 
 \item{eta}{a numeric vector with the same number of entries as `G` has rows}
 
-\item{testedExpectations}{an integer vector indicating the tested expectations}
+\item{testedExpectations}{an integer vector indicating the tested
+expectations}
 
-\item{ambientExpectations}{an integer vector indicating the ambient expectations}
+\item{ambientExpectations}{an integer vector indicating the ambient
+expectations}
 
 \item{maxit}{an integer specifying the maximimal number of iterations used in
 the I-projector (default 10000L)}
@@ -45,16 +47,17 @@ the I-projector (default 10000L)}
 
 \item{y}{an optional (non-empty) numeric vector of data values}
 
-\item{mu}{a single number indicating the true value of the mean or the difference in
-means when performing a two sample test}
+\item{mu}{a single number indicating the true value of the mean or the
+difference in means when performing a two sample test}
 
 \item{paired}{a logical indicating whether to perform a paired test (default
 FALSE)}
 
-\item{formula}{a formula either of the form `lhs` ~ `rhs`, where `lhs` is either
-a numeric or factor variable or combinations thereof (see details) and
-`rhs` is one or more factor variable used to define the groups, or of the form
-~ `rhs` where `rhs` contains one or more numeric or factor variable (see details)}
+\item{formula}{a formula either of the form `lhs` ~ `rhs`, where `lhs` is
+either a numeric or factor variable or combinations thereof (see details) and
+`rhs` is one or more factor variable used to define the groups, or of the
+form ~ `rhs` where `rhs` contains one or more numeric or factor variable
+(see details)}
 
 \item{data}{a data.frame containing the variables used in `formula`}
 
@@ -65,26 +68,34 @@ expectations}
 `boltzmann.test` with `object` being an outcome_tibble is the general
 interface to perform the Boltzmann Test.
 
-`boltzmann.test` with `object` being a numeric vector performs one or two sample
-Boltzmann Tests for the mean. It follows the `t.test` interface.
+`boltzmann.test` with `object` being a numeric vector performs one or two
+sample Boltzmann Tests for the mean. It follows the `t.test` interface.
 
 `boltzmann.test` with `object` being a formula performs multigroup
 or multivariate comparisons
 }
 \details{
-The `formula` API allows to specify multigroup comparisons for one or more target
-variable specified at `lhs`. If a target variable is numeric then the difference
-of means of all groups except the first versus the mean of the first group is compared.
-if a target variable is a factor then the difference of the prevalence of the second (third, etc) level
-of that level of all groups except the first versus the first group is compared.
-If only a `rhs` is given, a multivariate comparison to the given `nu` is performed. If the target
-is numeric the mean is calculated. If the target is a factor the prevalence is calculated.
+The `formula` API allows to specify multi-group comparisons for one or more
+target variable specified at `lhs`. If a target variable is numeric then the
+difference of means of all groups except the first versus the mean of the
+first group is compared. if a target variable is a factor then the difference
+of the prevalence of the second (third, etc) level of that level of all
+groups except the first versus the first group is compared.If only a `rhs`
+is given, a multivariate comparison to the given `nu` is performed. If the
+target is numeric the mean is calculated. If the target is a factor the
+prevalence is calculated.
 }
 \examples{
 ## examples using the NHANES data
 data(nhanes)
 ## testing whether females are on average the same height as males
-with(nhanes, boltzmann.test(BMXHT[RIAGENDR == "female"], BMXHT[RIAGENDR == "male"]))
+with(
+  nhanes,
+  boltzmann.test(
+    x = BMXHT[RIAGENDR == "female"],
+    y = BMXHT[RIAGENDR == "male"]
+   )
+)
 
 ## testing whether females weigh on average 10 kg less than males
 boltzmann.test(BMXWT ~ RIAGENDR, data = nhanes, nu = -10)
@@ -101,6 +112,9 @@ boltzmann.test(success ~ treatment, data = kidneyStones)
 boltzmann.test(success ~ treatment + stoneSize, data = kidneyStones)
 
 ## nested hypothesis testing, deconfounding
+## generate outcome_tibble object
+outcomes <- outcomes_tibble(kidneyStones)
+## coefficient matrix
 G <- with(
   outcomes,
   rbind(
@@ -108,13 +122,16 @@ G <- with(
     # structural expectation fraction treatment A
     treatment_A = treatment == "A",
     # ambient expectation fraction small stone size given treatment B
-    stoneSize_small.treatment_B = (stoneSize == "small" & treatment == "B") / 0.5,
+    stoneSize_small.treatment_B =
+      (stoneSize == "small" & treatment == "B") / 0.5,
     # ambient expectation fraction small stone size given treatment A
-    stoneSize_small.treatment_A = (stoneSize == "small" & treatment == "A") / 0.5,
+    stoneSize_small.treatment_A =
+      (stoneSize == "small" & treatment == "A") / 0.5,
     # tested expectation: success rate treatment A versus B
     "success_yes:B_vs_A" = c(0, -2, 0, 2, 0, -2, 0, 2)
   )
 )
+## hypothesized values of the expectations
 eta <- c(
   norm = 1,
   treatment_A = 0.5,
@@ -123,27 +140,39 @@ eta <- c(
   stoneSize_small.treatment_A = 0.51,
   "success_yes:B_vs_A" = 0.0
 )
-## generate outcome_tibble object
-outcomes <- outcomes_tibble(kidneyStones)
-boltzmann.test(
+## perform nested Boltzmann Test
+(bt <- boltzmann.test(
   outcomes = outcomes,
   G = G,
   eta = eta,
   testedExpectations = 5,
   ambientExpectations = c(3,4)
-)
+))
 ## 1. project to a hypothesis with stone size frequencies the same in the
-##    treatment groups and not difference in the success rate between treatments
+##    treatment groups and not difference in the success rate between
+##    treatments
 ## 2. project to the ambient alternative with stone size frequencies as the
 ##    observed ones. Note the difference in the success rate in treatment B
 ##    versus A of roughly 10.1\%.
-## 3. project back to the empirical. Now the difference in the success rate in
-##    treatment B versus A is 4.6\%.
+##
+##    Sampling from a "population", where the treatments received the
+##    same number of patients with small and large stones with otherwise
+##    no overall difference in the treatment success rate, and keeping only
+##    samples with stone size frequencies equal to the observed ones
+##    exaggerates the difference between the treatments. Of course this is
+##    due to the dependency of success on the stone size.
+boltzmann.test(success ~ stoneSize, data = kidneyStones)
+##    Because more patients with small stones received treatment B and
+##    because treating patients with small stones has a higher success rate,
+##    treatment B appears to have a higher success rate than treatment B even
+##   when there is no difference between the treatments.
+## 3. project back to the empirical. Now the difference in the success rate
+##    in treatment B versus A is 4.6\%.
 ## Since changing the frequencies of the stone sizes to the observed ones
 ## already induces a shift in the difference from 0\% to 10.1\%, we see
 ## that the real difference in the success rate is 4.6\% - 10.1\% = -5.5\%.
-## The effect size estimate has reversed its sign as suggested by the analysis
-## stratified by stone size. Note, that this is not significant at
+## The effect size estimate has reversed its sign as suggested by the
+## analysis stratified by stone size. Note, that this is not significant at
 ## significance level 5\%.
 
 }
