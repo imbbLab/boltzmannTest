@@ -134,12 +134,14 @@ boltzmann.test.outcomes_tibble <-function(
     }
   }
   testedExpectations <- as.integer(testedExpectations)
-  if (any(testedExpectations < 1) || any(testedExpectations > NROW(G))){
-    stop("the indices of the tested moments are out of range")
-  }
   if (length(testedExpectations) < 1){
     stop("there must be at least one moment to be tested")
   }
+
+  if (any(testedExpectations < 1) || any(testedExpectations > NROW(G))){
+    stop("the indices of the tested moments are out of range")
+  }
+
   degreesOfFreedom <- length(testedExpectations)
   dataName <- deparse(substitute(outcomes))
   sampleSize <- sampleSize(outcomes)
