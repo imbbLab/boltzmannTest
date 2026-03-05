@@ -250,6 +250,50 @@ test_that("hypothesized expectations contain NA or non-finite number", {
     regexp = "`eta` contains non-finite or missing values"
   )
 })
+
+test_that("nested hypothesis testing", {
+  data("kidneyStones")
+  outcomes <- outcomes_tibble(kidneyStones)
+  ## coefficient matrix
+  G <- with(
+    outcomes,
+    rbind(
+      norm = 1,
+      # structural expectation fraction treatment A
+      treatment_A = treatment == "A",
+      # ambient expectation fraction small stone size given treatment B
+      stoneSize_small.treatment_B =
+        (stoneSize == "small" & treatment == "B") / 0.5,
+      # ambient expectation fraction small stone size given treatment A
+      stoneSize_small.treatment_A =
+        (stoneSize == "small" & treatment == "A") / 0.5,
+      # tested expectation: success rate treatment A versus B
+      "success_yes:B_vs_A" = c(0, -2, 0, 2, 0, -2, 0, 2)
+    )
+  )
+  ## hypothesized values of the expectations
+  eta <- c(
+    norm = 1,
+    treatment_A = 0.5,
+    # overall frequency of small stones is 0.51
+    stoneSize_small.treatment_B = 0.51,
+    stoneSize_small.treatment_A = 0.51,
+    "success_yes:B_vs_A" = 0.0
+  )
+
+  expect_no_error(
+    bt <- boltzmann.test(
+      outcomes = outcomes,
+      G = G,
+      eta = eta,
+      testedExpectations = 5,
+      ambientExpectations = c(3,4)
+    )
+  )
+  expect_equal(round(bt$pValue, 4), 0.0592)
+
+})
+
 test_that("hypothesis distribution is not feasible", {
   outcomes <- outcomes_tibble(
     data.frame(
@@ -302,7 +346,7 @@ test_that("hypothesis distribution is has zero probabilities", {
 
 })
 
-test_that("boltzmann.test(x,y, mu) test mu",{
+test_that("checks for mu",{
 
   expect_error(
     boltzmann.test(x = c(rep(-1, 4), rep(0, 4), rep(1, 2)), mu = NULL),
@@ -318,4 +362,68 @@ test_that("boltzmann.test(x,y, mu) test mu",{
   )
 })
 
+test_that("checks for numeric y", {
+  expect_error(
+    boltzmann.test(x = c(rep(-1, 4), rep(0, 4), rep(1, 2)), y = rep("A", 10)),
+    regexp = "`y` must a be a numeric vector"
+  )
+})
+test_that("check for same length for x and y in paired test",{
+  expect_error(
+    boltzmann.test(x = rep(0, 10), y = rep(1, 12), paired = TRUE),
+    regexp = "must have the same length"
+  )
+})
+test_that("check for same length for x and no y in paired test",{
+  expect_error(
+    boltzmann.test(x = rep(0, 10), paired = TRUE),
+    regexp = "`y` is missing for paired test"
+  )
+})
+
+test_that("one sample test", {
+  data(nhanes)
+
+  expect_no_error(
+    with(
+      nhanes,
+      boltzmann.test(
+        x = BMXWT,
+        mu = 75
+      )
+    )
+  )
+})
+
+test_that("two sample test", {
+  data(nhanes)
+
+  expect_no_error(
+    with(
+      nhanes,
+      boltzmann.test(
+        x = BMXWT[RIAGENDR == "male"],
+        y = BMXWT[RIAGENDR == "female"]
+      )
+    )
+  )
+  expect_no_error(
+    boltzmann.test(
+      x =stats::rnorm(50, mean = 1),
+      y = exp(stats::rnorm(50, mean = -0.5))
+    )
+  )
+})
+
+test_that("paired two sample test", {
+  x <- stats::rpois(50, lambda = 1)
+  y <- stats::rpois(50, lambda = 1)
+  expect_no_error(
+    boltzmann.test(
+      x,y,
+      paired = TRUE
+    )
+  )
+
+})
 
