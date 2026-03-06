@@ -622,6 +622,43 @@ test_that("targets are misspecified", {
   )
 })
 
+test_that("lhs is a matrix",{
+  data <- data.frame(
+    x = stats::rnorm(10),
+    y = stats::rnorm(10),
+    a = factor(rep(c("A", "B"), 5))
+  )
+  bt <- expect_no_error(boltzmann.test(cbind(x, y) ~ a, data = data))
+  expect_equal(rownames(bt$coefficientMatrix), c("norm","B","x:B_vs_A","y:B_vs_A"))
+})
+
+test_that("lhs is only one variable",{
+  data(nhanes)
+  bt <- expect_no_error(
+    boltzmann.test(BMXWT / (BMXHT / 100)^2 ~ RIAGENDR, data = nhanes)
+  )
+  expect_equal(
+    rownames(bt$coefficientMatrix),
+    c("norm","female", "BMXWT/(BMXHT/100)^2:female_vs_male")
+  )
+})
+
+test_that("multifactorial groups", {
+  data <- data.frame(
+    x = stats::rnorm(100),
+    a = factor(rep(c("A", "B"), 50)),
+    b = factor(rep(c("1", "2"), each = 50))
+  )
+  bt <- expect_no_error(boltzmann.test(x ~ a + b, data = data))
+  expect_equal(
+    rownames(bt$coefficientMatrix),
+    c(
+      "norm", "A.2", "B.1", "B.2",
+      "x:A.2_vs_A.1", "x:B.1_vs_A.1", "x:B.2_vs_A.1"
+    )
+  )
+})
+
 test_that("all grouping variables must be factors",{
   data <- data.frame(
     z = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
