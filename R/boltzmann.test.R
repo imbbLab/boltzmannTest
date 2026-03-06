@@ -117,6 +117,14 @@ boltzmann.test <- function(object, ...) UseMethod("boltzmann.test")
 boltzmann.test.outcomes_tibble <-function(
   outcomes, G, eta, testedExpectations, ambientExpectations = NULL,
   maxit = 10000L, tolerance = .Machine$double.eps){
+
+  if (!is.matrix(G) || !is.numeric(G)){
+    stop("`G` is not a numeric matrix")
+  }
+  if (!is.numeric(eta)){
+    stop("`eta` must be numeric")
+  }
+
   if (NROW(G) != length(eta)){
     stop("the number of generalized moments given by `eta` ",
          "does not match the number of rows in `G`")
@@ -124,8 +132,12 @@ boltzmann.test.outcomes_tibble <-function(
   if (any(!is.finite(eta))){
     stop("`eta` contains non-finite or missing values")
   }
+  testedExpectations <- as.integer(testedExpectations)
+  if (length(testedExpectations) < 1){
+    stop("there must be at least one moment to be tested")
+  }
+
   if (!is.null(ambientExpectations)){
-    ambientExpectations <- as.vector(ambientExpectations)
     if (any(ambientExpectations < 1) || any(ambientExpectations > NROW(G))){
       stop("the indices of the ambient expectations are out of range")
     }
@@ -133,10 +145,7 @@ boltzmann.test.outcomes_tibble <-function(
       stop("the ambient expectations must not include the tested expectations")
     }
   }
-  testedExpectations <- as.integer(testedExpectations)
-  if (length(testedExpectations) < 1){
-    stop("there must be at least one moment to be tested")
-  }
+
 
   if (any(testedExpectations < 1) || any(testedExpectations > NROW(G))){
     stop("the indices of the tested moments are out of range")
@@ -145,7 +154,7 @@ boltzmann.test.outcomes_tibble <-function(
   degreesOfFreedom <- length(testedExpectations)
   dataName <- deparse(substitute(outcomes))
   sampleSize <- sampleSize(outcomes)
-  ## determine the generalized moments for the empirical distribution
+  ## determine the sample expectations
   mu <- (G %*% empirical(outcomes))[, 1]
 
   etaNested <- NULL
@@ -164,7 +173,6 @@ boltzmann.test.outcomes_tibble <-function(
   )
   ## check for convergence
   if(h$converged != 0){
-
     ## here we cover the case, when some p's got zero
     if(any(h$p < tolerance)){
       warning("hypothesis conditions led to zero probabilities")
@@ -186,7 +194,6 @@ boltzmann.test.outcomes_tibble <-function(
         ambientExpectations =
           if (is.null(ambientExpectations)) NULL else rep(NA, NROW(G))
       ))
-      ## we may remove the offending entry and try again?
     }
     ## In nested hypothesis testing we project first from the
     ## hypothesis distribution to the ambient alternative family
@@ -394,12 +401,10 @@ boltzmann.test.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
 #'
 
 #' @importFrom dplyr group_by across mutate cur_group_id ungroup
-#' @importFrom stats model.frame
+#' @importFrom stats model.frame complete.cases
 #' @export
 boltzmann.test.formula <- function(formula, data, nu = 0){
-  if (missing(formula)){
-    stop("`formula` not provided")
-  }
+
   ## coerce data to a data frame
   data <- as.data.frame(data)
 
@@ -410,20 +415,22 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
     stop("all variables in the formula must be columns in data")
   }
 
-  varsClass <- sapply(vars, function(v) class(data[[v]]))
+  varsClass <- vapply(
+    vars,
+    FUN = function(v) class(data[[v]]),
+    FUN.VALUE = "character"
+  )
 
   if (any(varsClass == "character")){
-    stop("variables in `formula` are character vectors.
-         Convert these columns in `data` to factors")
+    stop("variables in `formula` are character vectors. ",
+         "Convert these columns in `data` to factors")
   }
-
-  if (any(complete.cases(data[vars]) == FALSE)){
-    warning("selected columns in data contain unobserved values.
-            Removing the corresponding rows")
-    data = data[complete.cases(data[vars]), vars, drop = FALSE]
-  } else{
-    data = data[, vars, drop = FALSE]
+  completeCases <- completeCases_internal(data[, vars])
+  if (any(completeCases == FALSE)){
+    warning("selected columns in data contain unobserved values. ",
+            "Removing the corresponding rows")
   }
+  data <- subset(data, subset = completeCases, select = vars, drop = FALSE)
 
   ## we have two possibilities
   ## 1. we have a left hand side, which is then the target
@@ -436,21 +443,23 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
 
   if (length(formula) == 3L){
 
-
+    ## get the model frame
     tryCatch(
       mf <- model.frame(
         formula = formula,
         data = data
       ),
       error = function(e) stop(paste0("formula is misspecified. ", e)),
-      warning = function(e) stop(paste0("`targets are misspecified. ", e))
+      warning = function(e) stop(paste0("targets are misspecified. ", e))
     )
 
     ## get the target(s)
-    y <- mf[, 1, drop = FALSE]
-    if (is.matrix(y[[1]])){
-      y <- data.frame(y[[1]])
+    y <- if (is.matrix(mf[[1]])){
+      data.frame(mf[[1]])
+    } else{
+      mf[, 1, drop = FALSE]
     }
+
     for(targetVar in colnames(y)){
       if(targetVar %in% vars){
         if(class(data[[targetVar]]) == "factor"){
@@ -461,26 +470,38 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
     ## get the grouping variables
     X <- mf[,-1, drop = FALSE]
 
-    xVarsClass <- sapply(colnames(X), function(v) class(X[[v]]))
+    xVarsClass <- vapply(
+      colnames(X),
+      FUN = function(v) class(data[[v]]),
+      FUN.VALUE = "character"
+    )
 
     if(any(xVarsClass != "factor")){
-      stop("all grouping variables must be factors")
+      stop("all grouping variables must be factors.")
     }
     ## make the groups
 
     groups <- group_by(X, across(everything()))
     groups <- mutate(groups, .group = cur_group_id())
-    groups$.group <- factor(
-      groups$.group,
-      labels = apply(
-        sapply(
-          attr(groups, "groups")[, colnames(X)],
-          as.character
-        ),
-        1,
+    groupLabels <- lapply(
+      attr(groups, "groups")[, colnames(X), drop = FALSE],
+      as.character
+    )
+    groupLabels <- if(length(groupLabels) == 1){
+      groupLabels[[1]]
+    } else{
+      groupLabels <- do.call(rbind, groupLabels)
+      apply(
+        groupLabels,
+        2,
         paste,
         collapse = "."
       )
+    }
+
+    groups$.group <- factor(
+      groups$.group,
+      labels = groupLabels
     )
     groups <- ungroup(groups)
     groupLevels <- levels(groups$.group)
@@ -505,14 +526,95 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
     prevalences <- (prevalence %*% empirical(outcomes))[, 1]
     eta <- c(norm = 1, prevalences[-1])
 
-    ## all groups versus first
-    for (targetVar in colnames(y)){
-      if(class(outcomes[[targetVar]]) == "factor"){
-        targetVarLevels <- levels(outcomes[[targetVar]])
-        if (length(targetVarLevels) == 1){
-          stop("categorical target ", targetVar, "has only one level")
-        }
-        for (targetVarLevel in targetVarLevels[-1]){
+    targetVars <- colnames(y)
+  } else if (length(formula) == 2L){
+
+    outcomes <- outcomes_tibble(data)
+    G <- matrix(1, ncol = NROW(outcomes), dimnames = list("norm"))
+    eta <- 1
+    targetVars <- vars
+    groupLevels <- NULL
+    prevalences <- NULL
+  } else{
+    stop("unrecognized `formula`")
+  }
+
+  ## compute matrix elements for the expectations
+  dt <- lapply(
+    targetVars,
+    function(targetVar){
+      expectations(outcomes, targetVar, groupLevels, prevalences)
+    }
+  )
+  ## target class
+  targetVarClass <- vapply(
+    targetVars,
+    FUN = function(v) class(outcomes[[v]]),
+    FUN.VALUE = "character"
+  )
+  ## the number of expectations per target variable
+  numberExpectations <- vapply(dt, FUN = length, FUN.VALUE = 1)
+
+  ## append to G
+  dt <- do.call(rbind, unlist(dt, recursive = FALSE))
+
+  targetExpectations <- seq_len(NROW(dt)) + NROW(G)
+  G <- rbind(
+    G,
+    dt
+  )
+  targetExpectationsClass <- unlist(
+    lapply(
+      seq_along(targetVarClass),
+      function(i) rep(targetVarClass[i], numberExpectations[i])
+    )
+  )
+
+  testedExpectations <- if (length(nu) == 1){
+    rep(nu, length(targetExpectations))
+  } else{
+    if (length(nu) != length(targetExpectations)){
+      stop("the number of expectations in `nu` does not ",
+           "match the number of tested moments")
+    }
+    nu
+  }
+  if (is.null(groupLevels)){
+    if(any(
+      targetExpectationsClass == "factor" &
+      (testedExpectations <= 0 | testedExpectations >= 1))){
+      stop("hypothesized prevalences outside (0, 1)")
+    }
+  }
+  eta <- c(eta, testedExpectations)
+  names(eta) <- rownames(G)
+
+  boltzmann.test(outcomes, G, eta, targetExpectations)
+}
+
+expectations <- function(outcomes, targetVar, groupLevels = NULL, prevalences = NULL){
+  ## target is categorical
+  if (class(outcomes[[targetVar]]) == "factor"){
+    targetVarLevels <- levels(outcomes[[targetVar]])
+    if (length(targetVarLevels) == 1){
+      stop("categorical target ", targetVar, " has only one level")
+    }
+    res <- lapply(
+      targetVarLevels[-1],
+      function(targetVarLevel){
+        if (is.null(groupLevels)){
+          dt <- list(
+            ifelse(
+              outcomes[[targetVar]] == targetVarLevel,
+              1,
+              0
+            )
+          )
+          names(dt) = paste0(
+            targetVar, "_", targetVarLevel
+          )
+          dt
+        } else{
           dt <-lapply(
             groupLevels[-1],
             function(group){
@@ -525,7 +627,6 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
                     prevalences[groupLevels[1]],
                   0
                 )
-
               )
             }
           )
@@ -533,110 +634,40 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
             targetVar, "_", targetVarLevel, ":",
             groupLevels[-1], "_vs_", groupLevels[1]
           )
-          dt <- do.call(rbind, dt)
-          G <- rbind(G, dt)
-        }
-
-      } else{
-        dt <-lapply(
-          groupLevels[-1],
-          function(group){
-            ifelse(
-              outcomes$group == group,
-              outcomes[[targetVar]] / prevalences[group],
-              ifelse(
-                outcomes$group == groupLevels[1],
-                -outcomes[[targetVar]] / prevalences[groupLevels[1]],
-                0
-              )
-
-            )
-          }
-        )
-        names(dt) <- paste0(
-          targetVar, ":", groupLevels[-1], "_vs_", groupLevels[1]
-        )
-        dt <- do.call(rbind, dt)
-        G <- rbind(G, dt)
-      }
-    }
-    targetExpectations <- seq(length(eta) + 1, nrow(G))
-    if (length(nu) == 1){
-      eta <- c(eta, rep(nu, length(targetExpectations)))
-    } else{
-      if (length(nu) != length(targetExpectations)){
-        stop("the number of expectations in `nu` does
-             not match the number of tested moments")
-      }
-      eta <- c(eta, nu)
-    }
-    names(eta) <- rownames(G)
-
-  } else if (length(formula) == 2){
-
-    outcomes <- outcomes_tibble(data)
-    nam <- NULL
-    dt <- lapply(
-      vars,
-      function(targetVar){
-        if (class(outcomes[[targetVar]]) == "factor"){
-          targetVarLevels <- levels(outcomes[[targetVar]])
-          if (length(targetVarLevels) == 1){
-            stop("categorical target ", targetVar, "has only one level")
-          }
-          res <- lapply(
-            targetVarLevels[-1],
-            function(targetVarLevel){
-              ifelse(
-                outcomes[[targetVar]] == targetVarLevel,
-                1,
-                0
-              )
-            }
-          )
-          names(res) <- paste0(targetVar, "_", targetVarLevels[-1])
-          do.call(rbind, res)
-        } else{
-          outcomes[[targetVar]]
+          do.call(rbind, dt)
         }
       }
     )
-
-    targetVarClass <- sapply(vars, function(v) class(outcomes[[v]]))
-    names(dt)[targetVarClass != "factor"] <- vars[targetVarClass != "factor"]
-    numberExpectations <- sapply(dt, NROW)
-    numberExpectations[targetVarClass != "factor"] <- 1
-    checkClass <- unlist(
-      lapply(
-        seq_along(targetVarClass),
-        function(i) rep(targetVarClass[i], numberExpectations[i])
-      )
-    )
-
-
-    dt <- do.call(rbind, dt)
-    G <- rbind(norm = 1, dt)
-    targetExpectations <- seq(2, nrow(G))
-    if (length(nu) == 1){
-      eta <- rep(nu, length(targetExpectations))
-    } else{
-      if (length(nu) != length(targetExpectations)){
-        stop("the number of expectations in `nu` does not
-             match the number of tested moments")
-      }
-      eta <- nu
-    }
-    if(any(checkClass == "factor" & (eta <= 0 | eta >= 1))){
-      stop("hypothesized prevalences outside (0, 1)")
-    }
-    eta <- c(1, eta)
-    names(eta) <- rownames(G)
+  ## target is numeric
   } else{
-    stop("unrecognized `formula`")
-  }
-  boltzmann.test(outcomes, G, eta, targetExpectations)
-}
+    if (is.null(groupLevels)){
+      dt <- list(outcomes[[targetVar]])
+      names(dt) = targetVar
+      dt
+    } else{
+      dt <-lapply(
+        groupLevels[-1],
+        function(group){
+          ifelse(
+            outcomes$group == group,
+            outcomes[[targetVar]] / prevalences[group],
+            ifelse(
+              outcomes$group == groupLevels[1],
+              -outcomes[[targetVar]] / prevalences[groupLevels[1]],
+              0
+            )
 
+          )
+        }
+      )
+      names(dt) <- paste0(
+        targetVar, ":", groupLevels[-1], "_vs_", groupLevels[1]
+      )
+      dt
+    }
+
+  }
+}
 
 
 

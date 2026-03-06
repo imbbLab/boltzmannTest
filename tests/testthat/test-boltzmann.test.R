@@ -1,3 +1,109 @@
+## boltzmann.test.outcomes_tibble
+test_that("non-numeric or non-matrix G", {
+  data("kidneyStones")
+  outcomes <- outcomes_tibble(kidneyStones)
+  ## coefficient matrix
+  G <- with(
+    outcomes,
+    rbind(
+      norm = 1,
+      # structural expectation fraction treatment A
+      treatment_A = treatment == "A",
+      # ambient expectation fraction small stone size given treatment B
+      stoneSize_small.treatment_B =
+        (stoneSize == "small" & treatment == "B") / 0.5,
+      # ambient expectation fraction small stone size given treatment A
+      stoneSize_small.treatment_A =
+        (stoneSize == "small" & treatment == "A") / 0.5,
+      # tested expectation: success rate treatment A versus B
+      "success_yes:B_vs_A" = c(0, -2, 0, 2, 0, -2, 0, 2)
+    )
+  )
+  ## hypothesized values of the expectations
+  eta <- c(
+    norm = 1,
+    treatment_A = 0.5,
+    # overall frequency of small stones is 0.51
+    stoneSize_small.treatment_B = 0.51,
+    stoneSize_small.treatment_A = 0.51,
+    "success_yes:B_vs_A" = 0.0
+  )
+
+  expect_error(
+    boltzmann.test(
+      outcomes = outcomes,
+      G = as.list(G),
+      eta = eta,
+      testedExpectations = 5,
+      ambientExpectations = c(3,4)
+    ),
+    regexp = "`G` is not a numeric matrix"
+  )
+  expect_error(
+    boltzmann.test(
+      outcomes = outcomes,
+      G = as.numeric(G),
+      eta = eta,
+      testedExpectations = 5,
+      ambientExpectations = c(3,4)
+    ),
+    regexp = "`G` is not a numeric matrix"
+  )
+  expect_error(
+    boltzmann.test(
+      outcomes = outcomes,
+      G = as.character(G),
+      eta = eta,
+      testedExpectations = 5,
+      ambientExpectations = c(3,4)
+    ),
+    regexp = "`G` is not a numeric matrix"
+  )
+})
+
+
+test_that("non-numeric eta", {
+  data("kidneyStones")
+  outcomes <- outcomes_tibble(kidneyStones)
+  ## coefficient matrix
+  G <- with(
+    outcomes,
+    rbind(
+      norm = 1,
+      # structural expectation fraction treatment A
+      treatment_A = treatment == "A",
+      # ambient expectation fraction small stone size given treatment B
+      stoneSize_small.treatment_B =
+        (stoneSize == "small" & treatment == "B") / 0.5,
+      # ambient expectation fraction small stone size given treatment A
+      stoneSize_small.treatment_A =
+        (stoneSize == "small" & treatment == "A") / 0.5,
+      # tested expectation: success rate treatment A versus B
+      "success_yes:B_vs_A" = c(0, -2, 0, 2, 0, -2, 0, 2)
+    )
+  )
+  ## hypothesized values of the expectations
+  eta <- c(
+    norm = 1,
+    treatment_A = 0.5,
+    # overall frequency of small stones is 0.51
+    stoneSize_small.treatment_B = "A",
+    stoneSize_small.treatment_A = 0.51,
+    "success_yes:B_vs_A" = 0.0
+  )
+
+  expect_error(
+    boltzmann.test(
+      outcomes = outcomes,
+      G = G,
+      eta = eta,
+      testedExpectations = 5,
+      ambientExpectations = c(3,4)
+    ),
+    regexp = "eta` must be numeric"
+  )
+})
+
 test_that("different number of expectations and rows in G", {
   data("kidneyStones")
   outcomes <- outcomes_tibble(kidneyStones)
@@ -345,6 +451,7 @@ test_that("hypothesis distribution is has zero probabilities", {
   expect_true(all(any(bt$hypothesisDistribution < .Machine$double.eps)))
 
 })
+## boltzmann.test.numeric
 
 test_that("checks for mu",{
 
@@ -425,5 +532,157 @@ test_that("paired two sample test", {
     )
   )
 
+})
+
+test_that("one sample test with paired = TRUE", {
+  x <- stats::rpois(50, lambda = 1)
+  expect_error(
+    boltzmann.test(
+      x,
+      paired = TRUE
+    ),
+    regexp = "`y` is missing for paired test"
+  )
+
+})
+
+## boltzmann.test.formula
+
+test_that("variables in the formula are not in the data", {
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5))
+  )
+  expect_error(
+    boltzmann.test(y ~ z, data = data),
+    regexp = "all variables in the formula must be columns in data"
+  )
+})
+
+test_that("variables in formula must not be character vectors", {
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = rep(c("A", "B"),5)
+  )
+  expect_error(
+    boltzmann.test(y ~ x, data = data),
+    regexp = "variables in `formula` are character vectors."
+  )
+})
+
+test_that("warning for non-finite and/or missing data", {
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(Inf, 2)),
+    x = factor(rep(c("A", "B"),5))
+  )
+  expect_warning(
+    boltzmann.test(y ~ x, data = data),
+    regexp = "selected columns in data contain unobserved values. "
+  )
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5))
+  )
+  data[1,2] <- NA
+  expect_warning(
+    boltzmann.test(y ~ x, data = data),
+    regexp = "selected columns in data contain unobserved values. "
+  )
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5))
+  )
+  data[1,1] <- NaN
+  expect_warning(
+    boltzmann.test(y ~ x, data = data),
+    regexp = "selected columns in data contain unobserved values. "
+  )
+})
+
+test_that("formula is misspecified", {
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5))
+  )
+  expect_error(
+    boltzmann.test(y ~ x ~ 1, data = data),
+    regexp = "formula is misspecified."
+  )
+})
+
+test_that("targets are misspecified", {
+  data <- data.frame(
+    z = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5)),
+    y = rep(1, 10)
+  )
+  expect_error(
+    boltzmann.test(z + x ~ y, data = data),
+    regexp = "targets are misspecified."
+  )
+})
+
+test_that("all grouping variables must be factors",{
+  data <- data.frame(
+    z = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5)),
+    y = rep(1, 10)
+  )
+  expect_error(
+    boltzmann.test(z ~ x + y, data = data),
+    regexp = "all grouping variables must be factors."
+  )
+})
+
+test_that("not enough groups to compare",{
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A"),10))
+  )
+  expect_error(
+    boltzmann.test(y ~ x, data = data),
+    regexp = "not enough groups to compare"
+  )
+})
+
+test_that("categorical target .+ has only one level",{
+  data <- data.frame(
+    y = factor(rep(c("A"),10)),
+    x = factor(rep(c("X", "Y"), each = 5))
+  )
+  expect_error(
+    boltzmann.test(y ~ x, data = data),
+    regexp = "categorical target .+ has only one level"
+  )
+  expect_error(
+    boltzmann.test(~ y + x, data = data),
+    regexp = "categorical target .+ has only one level"
+  )
+})
+
+test_that("the number of expectations in `nu` does not match",{
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5))
+  )
+  expect_error(
+    boltzmann.test(y ~ x, data = data, nu = c(0,0)),
+    regexp = "the number of expectations in `nu` does not match"
+  )
+  expect_error(
+    boltzmann.test(~ y + x, data = data, nu = c(0,0, 10)),
+    regexp = "the number of expectations in `nu` does not match"
+  )
+})
+
+test_that("hypothesized prevalences outside (0, 1)",{
+  data <- data.frame(
+    y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    x = factor(rep(c("A", "B"),5))
+  )
+  expect_error(
+    boltzmann.test(~ y + x, data = data),
+    regexp = "hypothesized prevalences outside \\(0, 1\\)"
+  )
 })
 
