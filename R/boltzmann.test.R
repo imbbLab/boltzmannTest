@@ -275,9 +275,7 @@ boltzmann.test.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
   if (!missing(mu) && (length(mu) != 1 || is.na(mu)) || !is.numeric(mu)){
     stop("`mu` must be a single number")
   }
-  if (!is.numeric(x)){
-    stop("`x` must be a numeric vector")
-  }
+
   xName <- deparse(substitute(x))
   if(!is.null(y)){
     if (!is.numeric(y)){
