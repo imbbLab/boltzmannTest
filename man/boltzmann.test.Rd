@@ -64,6 +64,31 @@ form ~ `rhs` where `rhs` contains one or more numeric or factor variable
 \item{nu}{a single number or a numeric vector specifying the values of the
 expectations}
 }
+\value{
+a list with class `boltzmannTestResult` containing the follow
+components
+ * `statistic` the value of \eqn{\chi^2} statistic
+ * `iDivergence` the value of the I-divergence, a.k.a. Kullback-Leibler
+ divergence of the hypothesis distribution or ambient alternative
+ distribution to the empirical distribution
+ * `degreesOfFreedom` the degrees of freedom used for computing the p-value
+ via the \eqn{\chi^2} distribution with `degreesOfFreedom`
+ * `sampleSize` the sample size
+ * `pValue` the p-value
+ * `alternativeDistribution` the empirical distribution of outcomes
+ * `alternativeExpectations` the values of empirical expectations
+ * `hypothesisDistribution` the hypothesis distribution of outcomes
+ * `hypothesisExpectations` the values of hypothesized expectations
+ * `testedExpectations` an integer vector with the indices of the tested
+   expectations
+ * `dataName` name of the input data
+ * `coefficientMatrix` an numeric matrix with the coefficient matrix
+ * `method` a string signifying the method
+ * `ambientDistribution` the ambient alternative distribution of outcomes
+   if nested hypothesis testing is performed otherwise NULL
+ * `ambientExpectations` the values of the ambient expectations if nested
+   hypothesis testing is performed otherwise NULL
+}
 \description{
 `boltzmann.test` with `object` being an outcome_tibble is the general
 interface to perform the Boltzmann Test.

@@ -79,9 +79,9 @@ new_boltzmannTestResult <- function(
   class(res) <- "boltzmannTestResult"
   res
 }
+#' Validate a `boltzmannTestResult` object
 #' @description
-#' `validate_boltzmannTestResult()` checks a `boltzmannTestResult` object
-#' for internal consistency.
+#' Checks a `boltzmannTestResult` object for internal consistency.
 #'
 #' @param object a `boltzmannTestResult` class object
 #'
