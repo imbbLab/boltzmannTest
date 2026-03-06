@@ -96,7 +96,8 @@ validate_boltzmannTestResult <- function(object){
     "ambientExpectations"
   )
   if (! all(fields %in% names(object))){
-    stop("these list elements are missing", setdiff(fields, names(object)))
+    stop("these list elements are missing",
+         paste(setdiff(fields, names(object)), collapse = ","))
   }
 
   with(
@@ -197,29 +198,34 @@ validate_boltzmannTestResult <- function(object){
 #' @description
 #' Creates a `boltzmannTestResult` object
 #'
-#' @param statistic a single numeric value corresponding to the value of the (test) statistic
-#' @param iDivergence a single numeric value corresponding to the value of the I-Divergence
-#' of the hypothesis distribution or outer alternative distribution to the (inner) alternative
-#' distribution
-#' @param degreesOfFreedom a single integer value for the degrees of freedom of the Chi^2 distribution.
-#' Gives the number of tested generalized Expectations and must be > 0
+#' @param statistic a single numeric value corresponding to the value of the
+#' (test) statistic
+#' @param iDivergence a single numeric value corresponding to the value of the
+#' I-Divergence of the hypothesis distribution or outer alternative
+#' distribution to the (inner) alternative distribution
+#' @param degreesOfFreedom a single integer value for the degrees of freedom
+#' of the Chi^2 distribution. Gives the number of tested generalized
+#' Expectations and must be > 0
 #' @param sampleSize a single integer value for the sample size. Must be > 1
 #' @param pValue a single numeric value between 0 and 1 for the p-value
-#' @param alternativeDistribution a numeric vector for the alternative distribution (usually equal
-#' to the empirical distribution)
-#' @param alternativeExpectations a numeric vector for the values of the generalized moments
-#' of the alternative distribution
-#' @param hypothesisDistribution a numeric vector for the hypothesis distribution
-#' @param hypothesisExpectations a numeric vector for the values of the generalized moments
-#' of the hypothesis distribution
-#' @param testedExpectations integer vector with the indices of the tested moments
+#' @param alternativeDistribution a numeric vector for the alternative
+#' distribution (usually equal to the empirical distribution)
+#' @param alternativeExpectations a numeric vector for the values of the
+#' observed expectations of the alternative distribution
+#' @param hypothesisDistribution a numeric vector for the hypothesis
+#' distribution
+#' @param hypothesisExpectations a numeric vector for the values of the
+#' expectations of the hypothesis distribution
+#' @param testedExpectations integer vector with the indices of the
+#' tested expectations
 #' @param dataName string with the name of the data
-#' @param coefficientMatrix a numeric matrix holding the coefficient matrix to calculate
-#' the generalized moments. The number of rows must equal the number of generalized moments and the number
-#' of columns the number of entities.
-#' @param ambientDistribution a numeric vector for the ambient alternative distribution
-#' @param ambientExpectations a numeric vector for the values of the generalized moments
-#' of the ambient alternative distribution
+#' @param coefficientMatrix a numeric matrix holding the coefficient matrix
+#' to calculate the expectations. The number of rows must equal the number of
+#' expectations and the number of columns the number of entities.
+#' @param ambientDistribution a numeric vector for the ambient alternative
+#' distribution
+#' @param ambientExpectations a numeric vector for the values of the
+#' expectations of the ambient alternative distribution
 #' @export
 boltzmannTestResult <- function(
     statistic,
@@ -262,15 +268,21 @@ boltzmannTestResult <- function(
 
 
 #' @export
-print.boltzmannTestResult <- function(object, digits = getOption("digits"), prefix = "\t", ...) {
+print.boltzmannTestResult <- function(
+    object, digits = getOption("digits"), prefix = "\t", ...) {
   cat("\n")
   cat(strwrap(object$method, prefix = prefix), sep = "\n")
   cat("\n")
   cat("data:  ", object$dataName, "\n", sep = "")
 
-  cat("statistic = ", object$statistic, ", df = ", object$degreesOfFreedom, ", N = ", object$sampleSize, sep = "")
+  cat(
+    "statistic = ", object$statistic,
+    ", df = ", object$degreesOfFreedom,
+    ", N = ", object$sampleSize, sep = ""
+  )
   pval <- format.pval(object$pValue, digits = max(1L, digits - 3L))
-  cat(", p-value ", if (substr(pval, 1L, 1L) == "<") pval else paste("=", pval), "\n\n", sep = "")
+  cat(", p-value ", if (substr(pval, 1L, 1L) == "<") pval else
+    paste("=", pval), "\n\n", sep = "")
 
   testedExpectations <- rep(FALSE, length(object$hypothesisExpectations))
   testedExpectations[object$testedExpectations] <- TRUE
