@@ -133,11 +133,9 @@ boltzmann.test.outcomes_tibble <-function(
     stop("`eta` contains non-finite or missing values")
   }
   testedExpectations <- as.integer(testedExpectations)
-  if (length(testedExpectations) < 1){
-    stop("there must be at least one moment to be tested")
-  }
 
   if (!is.null(ambientExpectations)){
+    ambientExpectations <- as.integer(ambientExpectations)
     if (any(ambientExpectations < 1) || any(ambientExpectations > NROW(G))){
       stop("the indices of the ambient expectations are out of range")
     }
