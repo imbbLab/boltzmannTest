@@ -531,8 +531,6 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
     targetVars <- vars
     groupLevels <- NULL
     prevalences <- NULL
-  } else{
-    stop("unrecognized `formula`")
   }
 
   ## compute matrix elements for the expectations
@@ -588,7 +586,8 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
   boltzmann.test(outcomes, G, eta, targetExpectations)
 }
 
-expectations <- function(outcomes, targetVar, groupLevels = NULL, prevalences = NULL){
+expectations <- function(
+    outcomes, targetVar, groupLevels = NULL, prevalences = NULL){
   ## target is categorical
   if (class(outcomes[[targetVar]]) == "factor"){
     targetVarLevels <- levels(outcomes[[targetVar]])

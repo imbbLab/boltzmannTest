@@ -34,8 +34,8 @@
 #' distribution
 #' @param ambientExpectations a numeric vector for the values of the
 #' expectations of the ambient alternative distribution
-#' @noRd
-#' @export
+#'
+#' @keywords internal
 new_boltzmannTestResult <- function(
     statistic,
     iDivergence,
@@ -84,8 +84,8 @@ new_boltzmannTestResult <- function(
 #' for internal consistency.
 #'
 #' @param object a `boltzmannTestResult` class object
-#' @noRd
-#' @export
+#'
+#' @keywords internal
 validate_boltzmannTestResult <- function(object){
   ## check whether all list elements are present
   fields <- c(
@@ -135,21 +135,18 @@ validate_boltzmannTestResult <- function(object){
         }
       }
 
-      if (!is.numeric(alternativeDistribution) ||
-          !is.atomic(alternativeDistribution)){
+      if (!is.numeric(alternativeDistribution)){
         stop("`alternativeDistribution` must be a numeric vector")
       }
-      if (!is.numeric(alternativeExpectations) ||
-          !is.atomic(alternativeExpectations)){
+      if (!is.numeric(alternativeExpectations)){
         stop("`alternativeExpectations` must be a numeric vector")
       }
       if (!any(is.na(hypothesisDistribution))){
-        if (!is.numeric(hypothesisDistribution) ||
-            !is.atomic(hypothesisDistribution)){
+        if (!is.numeric(hypothesisDistribution)){
           stop("`hypothesisDistribution` must be a numeric vector")
         }
       }
-      if (!is.numeric(hypothesisExpectations) || !is.atomic(hypothesisExpectations)){
+      if (!is.numeric(hypothesisExpectations)){
         stop("`hypothesisExpectations` must be a numeric vector")
       }
       if (length(hypothesisDistribution) != length(alternativeDistribution)){
@@ -163,26 +160,29 @@ validate_boltzmannTestResult <- function(object){
       if (!is.integer(testedExpectations) ||!is.atomic(testedExpectations)){
         stop("`testedExpectations` must be a integer vector")
       }
-      if (any(testedExpectations < 1) || any(testedExpectations > length(hypothesisExpectations))){
-        stop("`testedExpectations` must be between 1 and the number of hypothesis moments")
+      if (any(
+        testedExpectations < 1) ||
+        any(testedExpectations > length(hypothesisExpectations))){
+        stop("`testedExpectations` must be between 1 ",
+          "and the number of hypothesis moments")
       }
 
       if(!is.character(dataName)){
         stop("`dataName` must be a string")
       }
 
-      if (!is.matrix(coefficientMatrix) || !is.atomic(coefficientMatrix)){
+      if (!is.matrix(coefficientMatrix)){
         stop("`coefficientMatrix` must be a numeric matrix")
       }
       if (! is.null(ambientDistribution)){
         if (!any(is.na(ambientDistribution))){
-          if (!is.numeric(ambientDistribution) || !is.atomic(ambientDistribution)){
+          if (!is.numeric(ambientDistribution)){
             stop("`ambientDistribution` must be a numeric vector")
           }
         }
       }
       if (! is.null(ambientExpectations)){
-        if (!is.numeric(ambientExpectations) || !is.atomic(ambientExpectations)){
+        if (!is.numeric(ambientExpectations)){
           stop("`ambientExpectations` must be a numeric vector")
         }
       }
