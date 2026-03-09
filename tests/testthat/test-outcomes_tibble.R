@@ -176,12 +176,12 @@ test_that("subsetting with [] works on outcomes_tibble", {
 })
 
 
-test_that("empirical<- value` must be a numeric vector" ,{
+test_that("empirical<- `value` must be a numeric vector" ,{
   data(nhanes)
   outcomes <- outcomes_tibble(nhanes)
   expect_error(
     empirical(outcomes) <- "A",
-    regexp = "value` must be a numeric vector"
+    regexp = "`value` must be a numeric vector"
   )
 })
 

@@ -153,6 +153,19 @@ outcomes_tibble <- function(data){
 #'
 #' @returns A sliced `outcomes_tibble`
 #'
+#'
+#' @examples
+#' data(kidneyStones)
+#' outcomes <- outcomes_tibble(kidneyStones)
+#'
+#' ## remove small stones
+#' (outcomesLargeStones <- dplyr::filter(outcomes, stoneSize != "small"))
+#'
+#' ## this has adapted the empirical attribute to reflect the smaller
+#' ## sample size (from 700 to 343)
+#' sum(empirical(outcomesLargeStones))
+#'
+#'
 #' @importFrom dplyr dplyr_row_slice
 #' @export
 dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
@@ -199,6 +212,17 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
 #' @return An `outcomes_tibble` object with updated `empirical` and
 #' `sampleSize` attributes.
 #'
+#' @examples
+#' data(kidneyStones)
+#' outcomes <- outcomes_tibble(kidneyStones)
+#'
+#' ## remove small stones
+#' (outcomesSubset <- outcomes[1:3, c("treatment", "success")])
+#'
+#' ## this has adapted the empirical attribute to reflect the smaller
+#' ## sample size (from 700 to 288)
+#' sum(empirical(outcomesSubset))
+#'
 #' @export
 `[.outcomes_tibble` <- function(object, i, j, drop = FALSE) {
   out <- NextMethod()
@@ -243,6 +267,14 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
 #' @return a numeric vector of length = `nrow(object)` with the empirical
 #' relative frequencies
 #'
+#' @examples
+#' data(nhanes)
+#' outcomes <- outcomes_tibble(nhanes)
+#'
+#' ## get the empirical distribution
+#' f <- empirical(outcomes)
+#'
+#'
 #' @rdname empirical
 #' @export
 empirical <- function(object) UseMethod("empirical")
@@ -260,6 +292,12 @@ empirical.outcomes_tibble <- function(object){
 #' @param value an non-negative numeric vector of the same length
 #' as the empirical vector that sums to 1. Corresponds to the new empirical
 #' distribution,
+#' @examples
+#' data(nhanes)
+#' outcomes <- outcomes_tibble(nhanes)
+#'
+#' ## set the empirical distribution to the MEC2 sample weights
+#' empirical(outcomes) <- outcomes$WTMEC2YR / sum(outcomes$WTMEC2YR)
 #'
 #' @rdname empirical
 #' @export
@@ -290,6 +328,12 @@ empirical.outcomes_tibble <- function(object){
 #' Accessor for the `sampleSize` attribute of an `outcomes_tibble` object
 #' @param object an `outcomes_tibble` object
 #' @return the sample size
+#'
+#' @examples
+#' data(nhanes)
+#' outcomes <- outcomes_tibble(nhanes)
+#'
+#' sampleSize <- sampleSize(outcomes)
 #'
 #' @export
 sampleSize <- function(object) UseMethod("sampleSize")
