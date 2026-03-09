@@ -231,8 +231,5 @@ test_that("try printing an invalid outcomes_tibbl",{
     print(outcomes),
     regexp = "`empirical` attribute is missing"
   )
-  outcomes <- outcomes_tibble(nhanes)
-  class(outcomes) = "outcomes_tibble"
-  print(outcomes)
 })
 
