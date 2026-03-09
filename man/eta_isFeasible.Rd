@@ -17,7 +17,8 @@ eta_isFeasible(G, eta, tol = .Machine$double.eps)
 bool with `TRUE` if G p = eta is feasible
 }
 \description{
-Checks whether a vector `eta` = `G` `p` can be obtained by a vector `p` with p_i >= 0
+Checks whether a vector `eta` = `G` `p` can be obtained by a vector `p` with
+p_i >= 0
 and sum p_i = 1
 }
 \keyword{internal}

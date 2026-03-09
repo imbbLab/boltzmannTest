@@ -5,8 +5,8 @@
 \alias{nhanes}
 \title{NHANES 2021-2023 data}
 \format{
-A data.frame with 5620 observations of five variables (SEQN, RIAGENDR,
-WTMEC2YR, BMXWT, BMXHT)
+A data.frame with 5620 observations of five variables (SEQN,
+RIAGENDR, WTMEC2YR, BMXWT, BMXHT)
 }
 \usage{
 data(kidneyStones)

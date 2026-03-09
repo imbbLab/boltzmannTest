@@ -7,7 +7,8 @@
 multinomialPvalue(G, eta, mu, v, N)
 }
 \arguments{
-\item{G}{matrix with `nrow(G)` constraints (does not require normalization) for `ncol(G)` entities}
+\item{G}{matrix with `nrow(G)` constraints (does not require normalization)
+for `ncol(G)` entities}
 
 \item{eta}{vector with one value for each row of `G`}
 

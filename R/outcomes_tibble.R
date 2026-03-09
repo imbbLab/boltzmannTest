@@ -65,15 +65,17 @@ validate_outcomes_tibble <- function(object){
   if (abs(sum(empirical) - 1) > sqrt(.Machine$double.eps)){
     stop("`empirical` does not sum to 1")
   }
-  if (sampleSize < nrow(object)){
-    stop("fewer observations", sampleSize, "than outcomes", nrow(object))
-  }
   if (!is.numeric(sampleSize) || length(sampleSize) != 1) {
     stop("`sampleSize` must be a single number.")
   }
   if (sampleSize <= 0) {
     stop("`sampleSize` must be positive.")
   }
+  if (sampleSize < nrow(object)){
+    stop("fewer observations (", sampleSize, ") than outcomes (", nrow(object), ")")
+  }
+
+
   object
 }
 

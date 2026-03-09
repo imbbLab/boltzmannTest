@@ -5,15 +5,16 @@
 \alias{kidneyStones}
 \title{Kidney stone data}
 \format{
-A data.frame with 700 observations of three factor variables (stoneSize,
-treatment, success)
+A data.frame with 700 observations of three factor variables
+(stoneSize, treatment, success)
 }
 \usage{
 data(kidneyStones)
 }
 \description{
-Data from Charig et al. (1986), Table 1. Treatment A combines Nephrolithotomy/pyelolithotomy,
-Pyelolithotomy, Ureterolithotomy, treatment B corresponds to Percutaneous nephrolithotomy
+Data from Charig et al. (1986), Table 1. Treatment A combines
+Nephrolithotomy/pyelolithotomy, Pyelolithotomy, Ureterolithotomy,
+treatment B corresponds to Percutaneous nephrolithotomy
 }
 \examples{
 data(kidneyStones)

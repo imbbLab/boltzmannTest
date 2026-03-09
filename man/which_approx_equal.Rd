@@ -13,16 +13,17 @@ which_approx_equal(a, b, tol = .Machine$double.eps, reldiff = FALSE)
 
 \item{tol}{double value (default`.Machine$double.eps`) of the tolerance}
 
-\item{reldiff}{logical (default `FALSE`) whether to compute the relative difference `TRUE`
-or the absolute difference `FALSE`}
+\item{reldiff}{logical (default `FALSE`) whether to compute the relative
+difference `TRUE` or the absolute difference `FALSE`}
 }
 \value{
-a logical vector with elements `TRUE` if the entries are approximately equal
-or `FALSE` if not.
+a logical vector with elements `TRUE` if the entries are a
+pproximately equal or `FALSE` if not.
 }
 \description{
-Checks which entries of two numeric vector are up to a difference of > `tol` equal.
-Note that we follow the convention of Armadillo: if the difference of two numbers
-x and y is smaller or equal to `tol` then the numbers are approximately equal.
+Checks which entries of two numeric vector are up to a difference of > `tol`
+equal. Note that we follow the convention of Armadillo: if the difference of
+two numbers x and y is smaller or equal to `tol` then the numbers are
+approximately equal.
 }
 \keyword{internal}
