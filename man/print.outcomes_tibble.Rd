@@ -4,10 +4,10 @@
 \alias{print.outcomes_tibble}
 \title{Print Method for class `outcomes_tibble`}
 \usage{
-\method{print}{outcomes_tibble}(object, ...)
+\method{print}{outcomes_tibble}(x, ...)
 }
 \arguments{
-\item{object}{an `outcomes_tibble` object}
+\item{x}{an `outcomes_tibble` object}
 
 \item{...}{additional arguments for print}
 }

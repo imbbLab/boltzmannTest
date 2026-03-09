@@ -5,6 +5,7 @@
 #'
 #' @param p a numeric vector that should sum up to one (candidate distribution)
 #' @param q a numeric vector that should sum up to one (reference distribution)
+#' @param tolerance the numerical tolerance (default .Machine$double.eps)
 #'
 #' @returns the value of the I-divergence (a.k.a. Kullback-Leibler divergence)
 #' of q to p

@@ -30,7 +30,7 @@ test_that("non-numeric or non-matrix G", {
   )
 
   expect_error(
-    boltzmann.test(
+    boltzmannTest(
       outcomes = outcomes,
       G = as.list(G),
       eta = eta,
@@ -40,7 +40,7 @@ test_that("non-numeric or non-matrix G", {
     regexp = "`G` is not a numeric matrix"
   )
   expect_error(
-    boltzmann.test(
+    boltzmannTest(
       outcomes = outcomes,
       G = as.numeric(G),
       eta = eta,
@@ -50,7 +50,7 @@ test_that("non-numeric or non-matrix G", {
     regexp = "`G` is not a numeric matrix"
   )
   expect_error(
-    boltzmann.test(
+    boltzmannTest(
       outcomes = outcomes,
       G = as.character(G),
       eta = eta,
@@ -93,7 +93,7 @@ test_that("non-numeric eta", {
   )
 
   expect_error(
-    boltzmann.test(
+    boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -135,7 +135,7 @@ test_that("different number of expectations and rows in G", {
   )
 
   expect_error(
-    boltzmann.test(
+    boltzmannTest(
       outcomes = outcomes,
       G = G[-2, ],
       eta = eta,
@@ -178,7 +178,7 @@ test_that("testedExpectations out of range", {
   )
 
   expect_error(
-    boltzmann.test(
+    boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -221,7 +221,7 @@ test_that("ambientExpectations out of range", {
   )
 
   expect_error(
-    boltzmann.test(
+    boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -264,7 +264,7 @@ test_that("ambientExpectations overlap with testedExpectations", {
   )
 
   expect_error(
-    boltzmann.test(
+     boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -308,7 +308,7 @@ test_that("hypothesized expectations contain NA or non-finite number", {
   )
 
   expect_error(
-    boltzmann.test(
+     boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -327,7 +327,7 @@ test_that("hypothesized expectations contain NA or non-finite number", {
     "success_yes:B_vs_A" = Inf
   )
   expect_error(
-    boltzmann.test(
+     boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -346,7 +346,7 @@ test_that("hypothesized expectations contain NA or non-finite number", {
     "success_yes:B_vs_A" = 0.0
   )
   expect_error(
-    boltzmann.test(
+     boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -388,7 +388,7 @@ test_that("nested hypothesis testing", {
   )
 
   expect_no_error(
-    bt <- boltzmann.test(
+    bt <-  boltzmannTest(
       outcomes = outcomes,
       G = G,
       eta = eta,
@@ -416,7 +416,7 @@ test_that("hypothesis distribution is not feasible", {
     x = 2
   )
   expect_warning(
-    bt <- boltzmann.test(outcomes, G, eta, testedExpectations = 2),
+    bt <-  boltzmannTest(outcomes, G, eta, testedExpectations = 2),
     regexp = "`eta` is not feasible"
   )
   expect_true(is.na(bt$statistic))
@@ -442,7 +442,7 @@ test_that("hypothesis distribution is has zero probabilities", {
     x = 1
   )
   expect_warning(
-    bt <- boltzmann.test(outcomes, G, eta, testedExpectations = 2),
+    bt <-  boltzmannTest(outcomes, G, eta, testedExpectations = 2),
     regexp = "hypothesis conditions led to zero probabilities"
   )
   expect_true(is.infinite(bt$statistic))

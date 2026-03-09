@@ -2,7 +2,6 @@
 % Please edit documentation in R/boltzmannTest-package.R
 \docType{package}
 \name{boltzmannTest-package}
-\alias{boltzmannTest}
 \alias{boltzmannTest-package}
 \title{boltzmannTest: Non-parametric hypothesis testing with the Boltzmann Test}
 \description{

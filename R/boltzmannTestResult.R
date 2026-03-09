@@ -306,8 +306,8 @@ boltzmannTestResult <- function(
 
 #' @export
 print.boltzmannTestResult <- function(
-    object, digits = getOption("digits"), prefix = "\t", ...) {
-  object <- validate_boltzmannTestResult(object)
+    x, digits = getOption("digits"), prefix = "\t", ...) {
+  object <- validate_boltzmannTestResult(x)
   cat("\n")
   cat(strwrap(object$method, prefix = prefix), sep = "\n")
   cat("\n")

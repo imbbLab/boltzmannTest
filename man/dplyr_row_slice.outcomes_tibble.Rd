@@ -4,10 +4,10 @@
 \alias{dplyr_row_slice.outcomes_tibble}
 \title{`dplyr` row slicing for an `outcomes_tibble`}
 \usage{
-\method{dplyr_row_slice}{outcomes_tibble}(object, i, ...)
+\method{dplyr_row_slice}{outcomes_tibble}(data, i, ...)
 }
 \arguments{
-\item{object}{an `outcomes_tibble` object}
+\item{data}{an `outcomes_tibble` object}
 
 \item{i}{row indices selected by an upstream `dplyr` function}
 

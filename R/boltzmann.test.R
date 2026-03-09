@@ -1,26 +1,24 @@
-#' Perform a Boltzmann Test
+#' Perform a Boltzmann Test for
+#'
+#' Performs a one-, two-, and multi-groups Boltzmann Test for the
+#' the mean (one-group), the (paired) difference of the means (two-groups),
+#' means and/or prevalences of multiple observables (class formula), means
+#' and/or prevalences of multiple observables and multi-groups (class formula)
+#'
 #' @export
-boltzmann.test <- function(object, ...) UseMethod("boltzmann.test")
+boltzmann.test <- function(x, ...) UseMethod("boltzmann.test")
 
 #' @rdname boltzmann.test
-#' @description
-#' `boltzmann.test` with `object` being an outcome_tibble is the general
-#' interface to perform the Boltzmann Test.
 #'
-#' @param outcomes an `outcomes_tibble` object
-#' @param G a numeric matrix with the function values for the outcomes in the
-#' rows and the outcomes in the columns for the hypothesis
-#' @param eta a numeric vector with the same number of entries as `G` has rows
-#' @param testedExpectations an integer vector indicating the tested
-#' expectations
-#' @param ambientExpectations an integer vector indicating the ambient
-#' expectations
-#' @param maxit an integer specifying the maximimal number of iterations used in
-#' the I-projector (default 10000L)
-#' @param tolerance a numeric specifying the numeric tolerance (default
-#' .Machine$double.eps)
+#' @param x a (non-empty) numeric vector of data values
+#' @param y an optional (non-empty) numeric vector of data values
+#' @param mu a single number indicating the true value of the mean or the
+#' difference in means when performing a two sample test
+#' @param paired a logical indicating whether to perform a paired test (default
+#' FALSE)
+#' @param ... further arguments passed to the different methods
 #'
-#' @returns
+#' #' @returns
 #' a list with class `boltzmannTestResult` containing the follow
 #' components
 #' \describe{
@@ -47,7 +45,7 @@ boltzmann.test <- function(object, ...) UseMethod("boltzmann.test")
 #'    hypothesis testing is performed otherwise NULL}
 #' }
 #'
-#' @examples
+#' #' @examples
 #' ## examples using the NHANES data
 #' data(nhanes)
 #' ## testing whether females are on average the same height as males
@@ -73,231 +71,10 @@ boltzmann.test <- function(object, ...) UseMethod("boltzmann.test")
 #' ## and small and large stone sizes (four groups)
 #' boltzmann.test(success ~ treatment + stoneSize, data = kidneyStones)
 #'
-#' ## nested hypothesis testing, deconfounding
-#' ## generate outcome_tibble object
-#' outcomes <- outcomes_tibble(kidneyStones)
-#' ## coefficient matrix
-#' G <- with(
-#'   outcomes,
-#'   rbind(
-#'     norm = 1,
-#'     # structural expectation fraction treatment A
-#'     treatment_A = treatment == "A",
-#'     # ambient expectation fraction small stone size given treatment B
-#'     stoneSize_small.treatment_B =
-#'       (stoneSize == "small" & treatment == "B") / 0.5,
-#'     # ambient expectation fraction small stone size given treatment A
-#'     stoneSize_small.treatment_A =
-#'       (stoneSize == "small" & treatment == "A") / 0.5,
-#'     # tested expectation: success rate treatment A versus B
-#'     "success_yes:B_vs_A" = c(0, -2, 0, 2, 0, -2, 0, 2)
-#'   )
-#' )
-#' ## hypothesized values of the expectations
-#' eta <- c(
-#'   norm = 1,
-#'   treatment_A = 0.5,
-#'   # overall frequency of small stones is 0.51
-#'   stoneSize_small.treatment_B = 0.51,
-#'   stoneSize_small.treatment_A = 0.51,
-#'   "success_yes:B_vs_A" = 0.0
-#' )
-#' ## perform nested Boltzmann Test
-#' (bt <- boltzmann.test(
-#'   outcomes = outcomes,
-#'   G = G,
-#'   eta = eta,
-#'   testedExpectations = 5,
-#'   ambientExpectations = c(3,4)
-#' ))
-#' ## 1. project to a hypothesis with stone size frequencies the same in the
-#' ##    treatment groups and not difference in the success rate between
-#' ##    treatments
-#' ## 2. project to the ambient alternative with stone size frequencies as the
-#' ##    observed ones. Note the difference in the success rate in treatment B
-#' ##    versus A of roughly 10.1%.
-#' ##
-#' ##    Sampling from a "population", where the treatments received the
-#' ##    same number of patients with small and large stones with otherwise
-#' ##    no overall difference in the treatment success rate, and keeping only
-#' ##    samples with stone size frequencies equal to the observed ones
-#' ##    exaggerates the difference between the treatments. Of course this is
-#' ##    due to the dependency of success on the stone size.
-#' boltzmann.test(success ~ stoneSize, data = kidneyStones)
-#' ##    Because more patients with small stones received treatment B and
-#' ##    because treating patients with small stones has a higher success rate,
-#' ##    treatment B appears to have a higher success rate than treatment B even
-#' ##   when there is no difference between the treatments.
-#' ## 3. project back to the empirical. Now the difference in the success rate
-#' ##    in treatment B versus A is 4.6%.
-#' ## Since changing the frequencies of the stone sizes to the observed ones
-#' ## already induces a shift in the difference from 0% to 10.1%, we see
-#' ## that the real difference in the success rate is 4.6% - 10.1% = -5.5%.
-#' ## The effect size estimate has reversed its sign as suggested by the
-#' ## analysis stratified by stone size. Note, that this is not significant at
-#' ## significance level 5%.
-#'
-#' @importFrom stats complete.cases
-#' @importFrom stats pchisq
-#' @importFrom tibble tibble
-#' @export
-#'
-boltzmann.test.outcomes_tibble <-function(
-  outcomes, G, eta, testedExpectations, ambientExpectations = NULL,
-  maxit = 10000L, tolerance = .Machine$double.eps){
-
-  if (!is.matrix(G) || !is.numeric(G)){
-    stop("`G` is not a numeric matrix")
-  }
-  if (!is.numeric(eta)){
-    stop("`eta` must be numeric")
-  }
-
-  if (NROW(G) != length(eta)){
-    stop("the number of generalized moments given by `eta` ",
-         "does not match the number of rows in `G`")
-  }
-  if (any(!is.finite(eta))){
-    stop("`eta` contains non-finite or missing values")
-  }
-  testedExpectations <- as.integer(testedExpectations)
-
-  if (!is.null(ambientExpectations)){
-    ambientExpectations <- as.integer(ambientExpectations)
-    if (any(ambientExpectations < 1) || any(ambientExpectations > NROW(G))){
-      stop("the indices of the ambient expectations are out of range")
-    }
-    if (any(ambientExpectations %in% testedExpectations)){
-      stop("the ambient expectations must not include the tested expectations")
-    }
-  }
-
-
-  if (any(testedExpectations < 1) || any(testedExpectations > NROW(G))){
-    stop("the indices of the tested moments are out of range")
-  }
-
-  degreesOfFreedom <- length(testedExpectations)
-  dataName <- deparse(substitute(outcomes))
-  sampleSize <- sampleSize(outcomes)
-  ## determine the sample expectations
-  mu <- (G %*% empirical(outcomes))[, 1]
-
-  etaNested <- NULL
-  if (!is.null(ambientExpectations)){
-    etaNested <- eta
-    etaNested[ambientExpectations] <- mu[ambientExpectations]
-  }
-
-  ## 1. project empirical distribution to hypothesis linear family
-  h <- iProjector(
-    G = G,
-    eta = eta,
-    v = empirical(outcomes),
-    maxit = maxit,
-    convTolerance = tolerance
-  )
-  ## check for convergence
-  if(h$converged != 0){
-    ## here we cover the case, when some p's got zero
-    if(any(h$p < tolerance)){
-      warning("hypothesis conditions led to zero probabilities")
-      return(boltzmannTestResult(
-        statistic = Inf,
-        iDivergence = Inf,
-        degreesOfFreedom = degreesOfFreedom,
-        sampleSize = sampleSize,
-        pValue = 0,
-        alternativeDistribution = empirical(outcomes),
-        alternativeExpectations = mu,
-        hypothesisDistribution = h$p,
-        hypothesisExpectations = eta,
-        testedExpectations = testedExpectations,
-        dataName = dataName,
-        coefficientMatrix = G,
-        ambientDistribution =
-          if (is.null(ambientExpectations)) NULL else rep(NA, NROW(outcomes)),
-        ambientExpectations =
-          if (is.null(ambientExpectations)) NULL else rep(NA, NROW(G))
-      ))
-    }
-    ## In nested hypothesis testing we project first from the
-    ## hypothesis distribution to the ambient alternative family
-    baseDistribution <- if (!is.null(ambientExpectations)){
-      p <- iProjector(
-        G = G[-testedExpectations, ],
-        eta = etaNested[-testedExpectations],
-        v = h$p,
-        maxit = maxit,
-        convTolerance = tolerance
-      )
-      etaNested <- (G %*% p$p)[,1]
-      p
-    } else{
-      h
-    }
-    iDivergence <- iDivergence(empirical(outcomes), baseDistribution$p)
-
-    statistic <- 2 * sampleSize * iDivergence
-    pValue <- pchisq(statistic, df = degreesOfFreedom, lower.tail = FALSE)
-    boltzmannTestResult(
-      statistic = statistic,
-      iDivergence = iDivergence,
-      degreesOfFreedom = degreesOfFreedom,
-      sampleSize = sampleSize,
-      pValue = pValue,
-      alternativeDistribution = empirical(outcomes),
-      alternativeExpectations = mu,
-      hypothesisDistribution = h$p,
-      hypothesisExpectations = eta,
-      testedExpectations = testedExpectations,
-      dataName = dataName,
-      coefficientMatrix = G,
-      ambientDistribution =
-        if (is.null(ambientExpectations)) NULL else baseDistribution$p,
-      ambientExpectations = etaNested
-    )
-  } else{
-    boltzmannTestResult(
-      statistic = NA,
-      iDivergence = NA,
-      degreesOfFreedom = degreesOfFreedom,
-      sampleSize = sampleSize,
-      pValue = NA,
-      alternativeDistribution = empirical(outcomes),
-      alternativeExpectations = mu,
-      hypothesisDistribution = rep(NA, NROW(outcomes)),
-      hypothesisExpectations = eta,
-      testedExpectations = testedExpectations,
-      dataName = dataName,
-      coefficientMatrix = G,
-      ambientDistribution =
-        if (is.null(ambientExpectations)) NULL else rep(NA, NROW(outcomes)),
-      ambientExpectations =
-        if (is.null(ambientExpectations)) NULL else etaNested
-    )
-  }
-
-
-
-
-}
-#' @rdname boltzmann.test
-#' @description
-#' `boltzmann.test` with `object` being a numeric vector performs one or two
-#' sample Boltzmann Tests for the mean. It follows the `t.test` interface.
-#'
-#' @param x a (non-empty) numeric vector of data values
-#' @param y an optional (non-empty) numeric vector of data values
-#' @param mu a single number indicating the true value of the mean or the
-#' difference in means when performing a two sample test
-#' @param paired a logical indicating whether to perform a paired test (default
-#' FALSE)
-#'
 #' @importFrom stats complete.cases
 #' @importFrom tibble tibble
 #' @export
-boltzmann.test.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
+boltzmann.test.default <-function(x, y = NULL, mu = 0, paired = FALSE, ...){
   if (!missing(mu) && (length(mu) != 1 || is.na(mu)) || !is.numeric(mu)){
     stop("`mu` must be a single number")
   }
@@ -393,16 +170,13 @@ boltzmann.test.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
     rownames(G) <- names(eta)
     testedExpectations <- 2
   }
-  res <- boltzmann.test(outcomes, G, eta, testedExpectations)
+  res <- boltzmannTest(outcomes, G, eta, testedExpectations)
   res$dataName <- dataName
   res$method <- method
   res
 }
 
 #' @rdname boltzmann.test
-#' @description
-#' `boltzmann.test` with `object` being a formula performs multigroup
-#' or multivariate comparisons
 #'
 #' @param formula a formula either of the form `lhs` ~ `rhs`, where `lhs` is
 #' either a numeric or factor variable or combinations thereof (see details) and
@@ -426,8 +200,9 @@ boltzmann.test.numeric <-function(x, y = NULL, mu = 0, paired = FALSE){
 
 #' @importFrom dplyr group_by across mutate cur_group_id ungroup
 #' @importFrom stats model.frame complete.cases
+#' @importFrom methods is
 #' @export
-boltzmann.test.formula <- function(formula, data, nu = 0){
+boltzmann.test.formula <- function(formula, data, nu = 0, ...){
 
   ## coerce data to a data frame
   data <- as.data.frame(data)
@@ -486,7 +261,7 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
 
     for(targetVar in colnames(y)){
       if(targetVar %in% vars){
-        if(class(data[[targetVar]]) == "factor"){
+        if(is(data[[targetVar]], "factor")){
           y[[targetVar]] <- data[[targetVar]]
         }
       }
@@ -611,13 +386,14 @@ boltzmann.test.formula <- function(formula, data, nu = 0){
   eta <- c(eta, testedExpectations)
   names(eta) <- rownames(G)
 
-  boltzmann.test(outcomes, G, eta, targetExpectations)
+  boltzmannTest(outcomes, G, eta, targetExpectations)
 }
 
+#' @importFrom methods is
 expectations <- function(
     outcomes, targetVar, groupLevels = NULL, prevalences = NULL){
   ## target is categorical
-  if (class(outcomes[[targetVar]]) == "factor"){
+  if (is(outcomes[[targetVar]], "factor")){
     targetVarLevels <- levels(outcomes[[targetVar]])
     if (length(targetVarLevels) == 1){
       stop("categorical target ", targetVar, " has only one level")
@@ -661,7 +437,7 @@ expectations <- function(
         }
       }
     )
-  ## target is numeric
+    ## target is numeric
   } else{
     if (is.null(groupLevels)){
       dt <- list(outcomes[[targetVar]])
@@ -691,6 +467,10 @@ expectations <- function(
 
   }
 }
+
+
+
+
 
 
 

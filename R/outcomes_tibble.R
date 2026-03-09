@@ -147,7 +147,7 @@ outcomes_tibble <- function(data){
 #' `slice`, `arrange` etc. It automatically updates (marginalize) the empirical
 #' relative frequencies and the sample size
 #'
-#' @param object an `outcomes_tibble` object
+#' @param data an `outcomes_tibble` object
 #' @param i row indices selected by an upstream `dplyr` function
 #' @param ... additional parameters
 #'
@@ -168,7 +168,7 @@ outcomes_tibble <- function(data){
 #'
 #' @importFrom dplyr dplyr_row_slice
 #' @export
-dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
+dplyr_row_slice.outcomes_tibble <- function(data, i, ...) {
 
   if (length(i) == 0 || all(i == FALSE)) {
     stop("subsetting removed all rows.")
@@ -176,15 +176,15 @@ dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
 
   out <- NextMethod()
 
-  empirical <- attr(object, "empirical")[i]
-  sampleSize  <- attr(object, "sampleSize")
+  empirical <- attr(data, "empirical")[i]
+  sampleSize  <- attr(data, "sampleSize")
 
 
   validate_outcomes_tibble(
     new_outcomes_tibble(
       out,
       empirical = empirical / sum(empirical),
-      sampleSize = sum(empirical * sampleSize)
+      sampleSize = as.integer(sum(empirical * sampleSize))
     )
   )
 }
@@ -346,7 +346,7 @@ sampleSize.outcomes_tibble <- function(object){
 #'
 #' Appends a column empirical and prints the sample size
 #'
-#' @param object an `outcomes_tibble` object
+#' @param x an `outcomes_tibble` object
 #' @param ... additional arguments for print
 #' @return Function prints to console
 #'
@@ -360,11 +360,11 @@ sampleSize.outcomes_tibble <- function(object){
 #' @importFrom tibble as_tibble
 #'
 #' @export
-print.outcomes_tibble <- function(object, ...) {
-  validate_outcomes_tibble(object)
+print.outcomes_tibble <- function(x, ...) {
+  validate_outcomes_tibble(x)
   # Create display tibble
-  tbl <- as_tibble(object)
-  empirical <- attr(object, "empirical", exact = TRUE)
+  tbl <- as_tibble(x)
+  empirical <- attr(x, "empirical", exact = TRUE)
 
   # Add relFreq column for display only
   tbl$empirical <- empirical
@@ -373,8 +373,8 @@ print.outcomes_tibble <- function(object, ...) {
   print(tbl)
 
   # Footer info
-  cat("# Sample size:", attr(object, "sampleSize"), "\n")
-  invisible(object)
+  cat("# Sample size:", attr(x, "sampleSize"), "\n")
+  invisible(x)
 }
 
 completeCases_internal <- function(data){

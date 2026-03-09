@@ -48,7 +48,7 @@ nestedBoltzmannTest <- function(){
     "success_yes:B_vs_A" = 0.0
   )
   ## perform nested Boltzmann Test
-  boltzmann.test(
+  boltzmannTest(
     outcomes = outcomes,
     G = G,
     eta = eta,

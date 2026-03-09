@@ -10,6 +10,8 @@ iDivergence(p, q, tolerance = .Machine$double.eps)
 \item{p}{a numeric vector that should sum up to one (candidate distribution)}
 
 \item{q}{a numeric vector that should sum up to one (reference distribution)}
+
+\item{tolerance}{the numerical tolerance (default .Machine$double.eps)}
 }
 \value{
 the value of the I-divergence (a.k.a. Kullback-Leibler divergence)
