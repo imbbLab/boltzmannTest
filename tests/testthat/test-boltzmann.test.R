@@ -697,6 +697,20 @@ test_that("categorical target .+ has only one level",{
   )
 })
 
+
+test_that("in function `expectations` target variable is numeric",{
+  data(nhanes)
+  outcomes <- outcomes_tibble(nhanes)
+
+  targetVar <- "BMXWT"
+  groupLevels <- levels(outcomes$RIAGENDR)
+  expectation <- expect_no_error(
+    expectations()
+  )
+
+})
+
+
 test_that("the number of expectations in `nu` does not match",{
   data <- data.frame(
     y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
