@@ -77,20 +77,40 @@
 iProjector <- function(G, eta, v, maxit = 10000L, convTolerance = .Machine$double.eps){
   ## coerce G to a matrix
   G <- as.matrix(G)
-  if (!is.numeric(G) || !is.atomic(G)){
-    stop("`G must be a numeric matrix")
+
+  if (!is.numeric(G)){
+    stop("`G` must be a numeric matrix")
+  }
+  if (any(!is.finite(G))){
+    stop("all entries in `G` must be finite")
   }
 
   ## coerce eta to a vector
   eta <- as.vector(eta)
-  if(!is.numeric(eta) || !is.atomic(eta)){
+  if(!is.numeric(eta)){
     stop("`eta` must be a numeric vector")
+  }
+  if (any(!is.finite(eta))){
+    stop("all entries in `eta` must be finite")
   }
 
   ## coerce v to a vector
   v <- as.vector(v)
-  if(!is.numeric(v) || !is.atomic(v)){
+  if(!is.numeric(v)){
     stop("`v` must be a numeric vector")
+  }
+  if (any(!is.finite(v))){
+    stop("all entries in `v` must be finite")
+  }
+
+  if(any(v < 0)){
+    stop("`v` must be non-negative")
+  }
+
+
+  if (abs(1 - sum(v)) >= sqrt(convTolerance)){
+    warning("`v` should sum to 1. Normalizing to 1")
+    v <- v / sum(v)
   }
 
   ## check dimensions
@@ -114,54 +134,13 @@ iProjector <- function(G, eta, v, maxit = 10000L, convTolerance = .Machine$doubl
     res <- iProjector_cpp(G, eta, v, maxit, convTolerance)
     res
   } else{
-    warning("`eta` is not a feasible")
+    warning("`eta` is not feasible")
     res <- list(
       p = v,
       converged = 0,
       iter = NA,
-      error = "`eta` is not a feasible"
+      error = "`eta` is not feasible"
     )
     res
   }
-}
-
-#' Computes the I-divergence
-#'
-#' Given two probability vectors p and q compute the I-divergence
-#' also known as Kullback-Leibler divergence D(p||q) of p from q
-#'
-#' @param p a numeric vector that should sum up to one (candidate distribution)
-#' @param q a numeric vector that should sum up to one (reference distribution)
-#'
-#' @export
-iDivergence <- function(p, q, tolerance = .Machine$double.eps){
-  p <- as.vector(p)
-  q <- as.vector(q)
-  if (length(p) != length(q)){
-    stop("`p` and `q` must have the same length")
-  }
-  if(!is.numeric(p) || !is.atomic(p)){
-    stop("`p` must be a numeric vector")
-  }
-  if (!is.numeric(q) || !is.atomic(q)){
-    stop("`q` must be a numeric vector")
-  }
-  if (any(p < 0)){
-    stop("`p` must be non-negative")
-  }
-  if (any(q < tolerance)){
-    stop("`q` must be positive")
-  }
-  if(abs(sum(p) - 1) >= sqrt(tolerance)){
-    warning("`p` should sum to 1. Normalizing to 1")
-    p <- p / sum(p)
-
-  }
-  if(abs(sum(q) - 1) >= sqrt(tolerance)){
-    warning("`q` must sum to 1. Normalizing to 1")
-    q <- q / sum(q)
-  }
-
-  notNull <- which(! p < tolerance)
-  sum(p[notNull] * (log(p[notNull]) - log(q[notNull])))
 }
