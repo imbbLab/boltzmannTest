@@ -11,6 +11,34 @@
 #'
 #' @examples
 #'
+#' data(kidneyStones)
+#' outcomes <- outcomes_tibble(kidneyStones)
+#' G <- with(
+#'   outcomes,
+#'   rbind(
+#'     norm = 1,
+#'     # structural expectation fraction treatment A
+#'     treatment_A = treatment == "A",
+#'     # ambient expectation fraction small stone size given treatment B
+#'     stoneSize_small.treatment_B =
+#'       (stoneSize == "small" & treatment == "B") / 0.5,
+#'     # ambient expectation fraction small stone size given treatment A
+#'     stoneSize_small.treatment_A =
+#'       (stoneSize == "small" & treatment == "A") / 0.5
+#'   )
+#' )
+#' eta <- c(
+#'   norm = 1,
+#'   treatment_A = 0.5,
+#'   stoneSize_small.treatment_B = 0.51,
+#'   stoneSize_small.treatment_A = 0.51
+#'
+#' )
+#' ## perform I-projection
+#' iProj <- iProjector(G, eta = eta, v = empirical(outcomes))
+#'
+#' iDivergence(iProj$p, empirical(outcomes))
+#'
 #'
 #' @export
 iDivergence <- function(p, q, tolerance = .Machine$double.eps){
