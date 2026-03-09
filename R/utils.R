@@ -10,7 +10,7 @@
 #' @keywords internal
 matrix_hasFullRowRank <- function(G, tol = .Machine$double.eps){
   ## coerce G to a matrix
-  G <- as.matrix(G)
+
   if (!is.numeric(G) || !is.atomic(G)){
     stop("`G must be a numeric matrix")
   }
