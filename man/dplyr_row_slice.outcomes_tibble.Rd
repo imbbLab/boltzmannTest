@@ -21,3 +21,16 @@ This function is automatically called after the `dplyr` functions `filter`,
 `slice`, `arrange` etc. It automatically updates (marginalize) the empirical
 relative frequencies and the sample size
 }
+\examples{
+data(kidneyStones)
+outcomes <- outcomes_tibble(kidneyStones)
+
+## remove small stones
+(outcomesLargeStones <- dplyr::filter(outcomes, stoneSize != "small"))
+
+## this has adapted the empirical attribute to reflect the smaller
+## sample size (from 700 to 343)
+sum(empirical(outcomesLargeStones))
+
+
+}

@@ -310,8 +310,8 @@ test_that("`v` must have one value per column of `G`",{
     exactPvalue <- multinomialPvalue(
       G = bt$coefficientMatrix[-1, , drop = FALSE],
       eta = bt$hypothesisExpectations[-1],
-      mu = bt$alternativeDistribution[-1],
-      v = bt$hypothesisDistribution,
+      mu = bt$alternativeExpectations[-1],
+      v = v,
       N = bt$sampleSize
     ),
     regexp = "`v` must have one value per column of `G`"

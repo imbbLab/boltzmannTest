@@ -582,8 +582,50 @@ have the same length",{
 test_that("print boltzmannTestResult",{
   bt <- nestedBoltzmannTest()
 
-  expect_no_error(
-    print(bt)
+  expect_output(
+    print(bt),
+    regexp = "Boltzmann Test"
+  )
+
+  expect_output(
+    print(bt),
+    regexp = "data:  outcomes"
+  )
+
+  expect_output(
+    print(bt),
+    regexp = "statistic = 3.559549, df = 1, N = 700, p-value = 0.0592"
+  )
+  expect_output(
+    print(bt),
+    regexp =
+      "                            hypothesis   ambient alternative tested"
+  )
+  expect_output(
+    print(bt),
+    regexp =
+      "norm                              1.00 1.0000000  1.00000000       "
+  )
+
+  expect_output(
+    print(bt),
+    regexp =
+      "treatment_A                       0.50 0.5000000  0.50000000       "
+  )
+  expect_output(
+    print(bt),
+    regexp =
+      "stoneSize_small.treatment_B       0.51 0.7714286  0.77142857       "
+  )
+  expect_output(
+    print(bt),
+    regexp =
+      "stoneSize_small.treatment_A       0.51 0.2485714  0.24857143       "
+  )
+  expect_output(
+    print(bt),
+    regexp =
+      "success_yes:B_vs_A                0.00 0.1011363  0.04571429      *"
   )
 
 

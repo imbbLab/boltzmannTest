@@ -95,3 +95,4 @@ components
 \description{
 Creates a `boltzmannTestResult` object
 }
+\keyword{internal}

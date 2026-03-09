@@ -15,3 +15,10 @@ the sample size
 \description{
 Accessor for the `sampleSize` attribute of an `outcomes_tibble` object
 }
+\examples{
+data(nhanes)
+outcomes <- outcomes_tibble(nhanes)
+
+sampleSize <- sampleSize(outcomes)
+
+}

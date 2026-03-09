@@ -34,3 +34,15 @@ sample size
 - Column subsetting (`j`) works like a normal tibble; attributes are
   preserved.
 }
+\examples{
+data(kidneyStones)
+outcomes <- outcomes_tibble(kidneyStones)
+
+## remove small stones
+(outcomesSubset <- outcomes[1:3, c("treatment", "success")])
+
+## this has adapted the empirical attribute to reflect the smaller
+## sample size (from 700 to 288)
+sum(empirical(outcomesSubset))
+
+}

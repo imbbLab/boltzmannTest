@@ -17,3 +17,11 @@ Function prints to console
 \description{
 Appends a column empirical and prints the sample size
 }
+\examples{
+
+data(kidneyStones)
+outcomes <- outcomes_tibble(kidneyStones)
+print(outcomes)
+
+
+}

@@ -26,3 +26,18 @@ object, i.e. the empirical frequencies of the outcomes
 
 `empirical<-` sets the `empirical` attribute of an `outcomes_tibble` object
 }
+\examples{
+data(nhanes)
+outcomes <- outcomes_tibble(nhanes)
+
+## get the empirical distribution
+f <- empirical(outcomes)
+
+
+data(nhanes)
+outcomes <- outcomes_tibble(nhanes)
+
+## set the empirical distribution to the MEC2 sample weights
+empirical(outcomes) <- outcomes$WTMEC2YR / sum(outcomes$WTMEC2YR)
+
+}
