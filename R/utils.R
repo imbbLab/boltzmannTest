@@ -7,7 +7,7 @@
 #'
 #' @returns bool with `TRUE` if G has full row rank and `FALSE` if not
 #'
-#' @noRd
+#' @keywords internal
 matrix_hasFullRowRank <- function(G, tol = .Machine$double.eps){
   ## coerce G to a matrix
   G <- as.matrix(G)
@@ -27,7 +27,7 @@ matrix_hasFullRowRank <- function(G, tol = .Machine$double.eps){
 #' @param tol double (default `.Machine$double.eps`) tolerance
 #' @returns bool with `TRUE` if G p = eta is feasible
 #'
-#' @noRd
+#' @keywords internal
 eta_isFeasible <- function(G, eta, tol = .Machine$double.eps){
   ## coerce G to a matrix
   G <- as.matrix(G)
@@ -59,7 +59,7 @@ eta_isFeasible <- function(G, eta, tol = .Machine$double.eps){
 #' or the absolute difference `FALSE`
 #' @returns a logical vector with elements `TRUE` if the entries are approximately equal
 #' or `FALSE` if not.
-#' @noRd
+#' @keywords internal
 which_approx_equal <- function(a, b, tol = .Machine$double.eps, reldiff = FALSE){
   a <- as.vector(a)
   if (!is.numeric(a) || !is.atomic(a)){

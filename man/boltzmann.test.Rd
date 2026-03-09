@@ -67,27 +67,29 @@ expectations}
 \value{
 a list with class `boltzmannTestResult` containing the follow
 components
- * `statistic` the value of \eqn{\chi^2} statistic
- * `iDivergence` the value of the I-divergence, a.k.a. Kullback-Leibler
+\describe{
+ \item{statistic}{the value of \eqn{\chi^2} statistic}
+ \item{iDivergence}{the value of the I-divergence, a.k.a. Kullback-Leibler
  divergence of the hypothesis distribution or ambient alternative
- distribution to the empirical distribution
- * `degreesOfFreedom` the degrees of freedom used for computing the p-value
- via the \eqn{\chi^2} distribution with `degreesOfFreedom`
- * `sampleSize` the sample size
- * `pValue` the p-value
- * `alternativeDistribution` the empirical distribution of outcomes
- * `alternativeExpectations` the values of empirical expectations
- * `hypothesisDistribution` the hypothesis distribution of outcomes
- * `hypothesisExpectations` the values of hypothesized expectations
- * `testedExpectations` an integer vector with the indices of the tested
-   expectations
- * `dataName` name of the input data
- * `coefficientMatrix` an numeric matrix with the coefficient matrix
- * `method` a string signifying the method
- * `ambientDistribution` the ambient alternative distribution of outcomes
-   if nested hypothesis testing is performed otherwise NULL
- * `ambientExpectations` the values of the ambient expectations if nested
-   hypothesis testing is performed otherwise NULL
+ distribution to the empirical distribution}
+ \item{degreesOfFreedom}{ the degrees of freedom used for computing the
+ p-value via the \eqn{\chi^2} distribution with `degreesOfFreedom`}
+ \item{sampleSize}{the sample size}
+ \item{pValue}{the p-value}
+ \item{alternativeDistribution}{the empirical distribution of outcomes}
+ \item{alternativeExpectations}{the values of empirical expectations}
+ \item{hypothesisDistribution}{the hypothesis distribution of outcomes}
+ \item{hypothesisExpectations}{the values of hypothesized expectations}
+ \item{testedExpectations}{an integer vector with the indices of the tested
+   expectations}
+ \item{dataName}{name of the input data}
+ \item{coefficientMatrix}{an numeric matrix with the coefficient matrix}
+ \item{method}{a string signifying the method}
+ \item{ambientDistribution}{the ambient alternative distribution of outcomes
+   if nested hypothesis testing is performed otherwise NULL}
+ \item{ambientExpectations}{the values of the ambient expectations if nested
+   hypothesis testing is performed otherwise NULL}
+}
 }
 \description{
 `boltzmann.test` with `object` being an outcome_tibble is the general
