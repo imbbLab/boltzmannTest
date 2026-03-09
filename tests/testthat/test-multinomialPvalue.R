@@ -314,6 +314,6 @@ test_that("`v` must have one value per column of `G`",{
       v = bt$hypothesisDistribution,
       N = bt$sampleSize
     ),
-    regexp = "`eta` and `mu` must be the same length"
+    regexp = "`v` must have one value per column of `G`"
   )
 })

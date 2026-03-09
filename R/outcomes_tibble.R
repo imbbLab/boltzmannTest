@@ -305,6 +305,14 @@ sampleSize.outcomes_tibble <- function(object){
 #' @param object an `outcomes_tibble` object
 #' @param ... additional arguments for print
 #' @return Function prints to console
+#'
+#' @examples
+#'
+#' data(kidneyStones)
+#' outcomes <- outcomes_tibble(kidneyStones)
+#' print(outcomes)
+#'
+#'
 #' @importFrom tibble as_tibble
 #'
 #' @export

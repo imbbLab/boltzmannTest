@@ -262,7 +262,8 @@ validate_boltzmannTestResult <- function(object){
 #'    hypothesis testing is performed otherwise NULL}
 #' }
 #'
-#' @export
+#'
+#' @keywords internal
 boltzmannTestResult <- function(
     statistic,
     iDivergence,
