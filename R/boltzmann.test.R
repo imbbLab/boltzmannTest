@@ -18,7 +18,7 @@ boltzmann.test <- function(x, ...) UseMethod("boltzmann.test")
 #' FALSE)
 #' @param ... further arguments passed to the different methods
 #'
-#' #' @returns
+#' @returns
 #' a list with class `boltzmannTestResult` containing the follow
 #' components
 #' \describe{
