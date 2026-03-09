@@ -579,3 +579,12 @@ have the same length",{
   )
 })
 
+test_that("print boltzmannTestResult",{
+  bt <- nestedBoltzmannTest()
+
+  expect_no_error(
+    print(bt)
+  )
+
+
+})
