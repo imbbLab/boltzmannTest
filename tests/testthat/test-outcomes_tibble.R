@@ -225,7 +225,7 @@ test_that("empirical<- `value` should sum to 1. Normalizing to 1",{
 })
 
 test_that("try printing an invalid outcomes_tibbl",{
-  outcomes <- outcomes(nhanes)
+  outcomes <- outcomes?tibble(nhanes)
   attr(outcomes, "empirical") <- NULL
   expect_error(
     print(outcomes),
