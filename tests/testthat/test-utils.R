@@ -130,3 +130,19 @@ test_that("which_approx_equal: `b` is not a numeric vector",{
     regexp = "`b` is not a numeric vector"
   )
 })
+
+test_that("which_approx_equal: `b` has not the same number of entries as `a`",{
+  ## b has less entries than a
+  a <- rep(1/10, 10)
+  b <- rep(1/10, 9)
+  expect_error(
+    which_approx_equal(a, b),
+    regexp = "`b` has not the same number of entries as `a`"
+  )
+  ## b has more entries than b
+  b <- rep(1/10, 11)
+  expect_error(
+    which_approx_equal(a, b),
+    regexp = "`b` has not the same number of entries as `a`"
+  )
+})
