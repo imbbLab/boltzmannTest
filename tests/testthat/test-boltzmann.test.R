@@ -712,6 +712,8 @@ test_that("the number of expectations in `nu` does not match",{
   )
 })
 
+
+
 test_that("given expectations are tested", {
   data <- data.frame(
     y = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
@@ -723,7 +725,19 @@ test_that("given expectations are tested", {
     boltzmann.test(y ~ a, data = data, nu = nu)
   )
   expect_equal(bt$hypothesisExpectations[3], nu)
+  data(nhanes)
+  nu <- c(
+    BMXWT = mean(nhanes$BMXWT),
+    BMXHT = mean(nhanes$BMXHT)
+  )
+  bt <- expect_no_error(
+    boltzmann.test(~ BMXWT + BMXHT, data = nhanes, nu = nu)
+  )
+  expect_equal(bt$hypothesisExpectations[-1], nu)
+
 })
+
+
 
 test_that("hypothesized prevalences outside (0, 1)",{
   data <- data.frame(
