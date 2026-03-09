@@ -45,7 +45,7 @@ boltzmann.test <- function(x, ...) UseMethod("boltzmann.test")
 #'    hypothesis testing is performed otherwise NULL}
 #' }
 #'
-#' #' @examples
+#' @examples
 #' ## examples using the NHANES data
 #' data(nhanes)
 #' ## testing whether females are on average the same height as males
