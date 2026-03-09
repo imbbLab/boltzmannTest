@@ -417,7 +417,7 @@ test_that("hypothesis distribution is not feasible", {
   )
   expect_warning(
     bt <- boltzmann.test(outcomes, G, eta, testedExpectations = 2),
-    regexp = "`eta` is not a feasible"
+    regexp = "`eta` is not feasible"
   )
   expect_true(is.na(bt$statistic))
   expect_true(is.na(bt$iDivergence))
