@@ -58,7 +58,7 @@ eta_isFeasible <- function(G, eta, tol = .Machine$double.eps){
 #' @param reldiff logical (default `FALSE`) whether to compute the relative
 #' difference `TRUE` or the absolute difference `FALSE`
 #' @returns a logical vector with elements `TRUE` if the entries are a
-#' pproximately equal or `FALSE` if not.
+#' aproximately equal or `FALSE` if not.
 #' @keywords internal
 which_approx_equal <- function(
     a, b, tol = .Machine$double.eps, reldiff = FALSE){
