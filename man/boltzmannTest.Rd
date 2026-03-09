@@ -62,8 +62,7 @@ components
 }
 }
 \description{
-`boltzmann.test` with `object` being an outcome_tibble is the general
-interface to perform the Boltzmann Test.
+Perform a Boltzmann Test
 }
 \examples{
 ## nested hypothesis testing, deconfounding

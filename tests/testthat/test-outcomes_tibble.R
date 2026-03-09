@@ -223,3 +223,16 @@ test_that("empirical<- `value` should sum to 1. Normalizing to 1",{
     regexp = "`value` should sum to 1. Normalizing to 1"
   )
 })
+
+test_that("try printing an invalid outcomes_tibbl",{
+  outcomes <- outcomes(nhanes)
+  attr(outcomes, "empirical") <- NULL
+  expect_error(
+    print(outcomes),
+    regexp = "`empirical` attribute is missing"
+  )
+  outcomes <- outcomes_tibble(nhanes)
+  class(outcomes) = "outcomes_tibble"
+  print(outcomes)
+})
+

@@ -30,13 +30,11 @@ matrix_hasFullRowRank <- function(G, tol = .Machine$double.eps){
 #'
 #' @keywords internal
 eta_isFeasible <- function(G, eta, tol = .Machine$double.eps){
-  ## coerce G to a matrix
-  G <- as.matrix(G)
+
   if (!is.numeric(G) || !is.atomic(G)){
     stop("`G must be a numeric matrix")
   }
-  ## coerce eta to a vector
-  eta <- as.vector(eta)
+
   if(!is.numeric(eta) || !is.atomic(eta)){
     stop("`eta` must be a numeric vector")
   }
@@ -64,12 +62,12 @@ eta_isFeasible <- function(G, eta, tol = .Machine$double.eps){
 #' @keywords internal
 which_approx_equal <- function(
     a, b, tol = .Machine$double.eps, reldiff = FALSE){
-  a <- as.vector(a)
-  if (!is.numeric(a) || !is.atomic(a)){
+
+  if (!is.numeric(a) || !is.vector(a)){
     stop("`a` is not a numeric vector")
   }
-  b <- as.vector(b)
-  if (!is.numeric(b) || !is.atomic(b)){
+
+  if (!is.numeric(b) || !is.vector(b)){
     stop("`b` is not a numeric vector")
   }
   if (length(a) != length(b)){
