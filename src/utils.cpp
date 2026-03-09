@@ -24,7 +24,7 @@ bool eta_isFeasible_cpp(const arma::mat& G, const arma::vec& eta, double tol){
 }
 
 // [[Rcpp::export]]
-arma::imat startAndBars(arma::uword N, arma::uword k){
+arma::imat starsAndBars(arma::uword N, arma::uword k){
   arma::uword total = N + k - 1;
   arma::uword numberCombinations = R::choose(total, k - 1);
   arma::imat res(k, numberCombinations);

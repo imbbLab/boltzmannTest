@@ -14,10 +14,31 @@ for `ncol(G)` entities}
 
 \item{mu}{vector with the empirical values}
 
-\item{v}{reference distribution with one value for each column of `G`}
+\item{v}{hypothesis distribution with one value for each column of `G`}
 
 \item{N}{samples size}
 }
+\value{
+the exact multinomial p-value
+}
 \description{
 Computes the exact multinomial p-value using
+}
+\examples{
+
+data <- data.frame(
+  x = c(rep(-1, 4), rep(0, 4), rep(1, 2))
+)
+(bt <- boltzmann.test(~x, data = data))
+
+## exact multinomial p-value
+(exactPvalue <- multinomialPvalue(
+  G = bt$coefficientMatrix[-1, , drop = FALSE],
+  eta = bt$hypothesisExpectations[-1],
+  mu = bt$alternativeExpectations[-1],
+  v = bt$hypothesisDistribution,
+  N = bt$sampleSize
+))
+
+
 }

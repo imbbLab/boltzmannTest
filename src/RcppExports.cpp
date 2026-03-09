@@ -81,15 +81,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// startAndBars
-arma::imat startAndBars(arma::uword N, arma::uword k);
-RcppExport SEXP _boltzmannTest_startAndBars(SEXP NSEXP, SEXP kSEXP) {
+// starsAndBars
+arma::imat starsAndBars(arma::uword N, arma::uword k);
+RcppExport SEXP _boltzmannTest_starsAndBars(SEXP NSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::uword >::type N(NSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(startAndBars(N, k));
+    rcpp_result_gen = Rcpp::wrap(starsAndBars(N, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -114,7 +114,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_boltzmannTest_multinomialPvalue_incremental_cpp", (DL_FUNC) &_boltzmannTest_multinomialPvalue_incremental_cpp, 5},
     {"_boltzmannTest_matrix_hasFullRowRank_cpp", (DL_FUNC) &_boltzmannTest_matrix_hasFullRowRank_cpp, 2},
     {"_boltzmannTest_eta_isFeasible_cpp", (DL_FUNC) &_boltzmannTest_eta_isFeasible_cpp, 3},
-    {"_boltzmannTest_startAndBars", (DL_FUNC) &_boltzmannTest_startAndBars, 2},
+    {"_boltzmannTest_starsAndBars", (DL_FUNC) &_boltzmannTest_starsAndBars, 2},
     {"_boltzmannTest_which_approx_equal_cpp", (DL_FUNC) &_boltzmannTest_which_approx_equal_cpp, 4},
     {NULL, NULL, 0}
 };

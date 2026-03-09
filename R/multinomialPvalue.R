@@ -6,33 +6,47 @@
 #' for `ncol(G)` entities
 #' @param eta vector with one value for each row of `G`
 #' @param mu vector with the empirical values
-#' @param v reference distribution with one value for each column of `G`
+#' @param v hypothesis distribution with one value for each column of `G`
 #' @param N samples size
+#'
+#' @returns
+#' the exact multinomial p-value
+#'
+#' @examples
+#'
+#' data <- data.frame(
+#'   x = c(rep(-1, 4), rep(0, 4), rep(1, 2))
+#' )
+#' (bt <- boltzmann.test(~x, data = data))
+#'
+#' ## exact multinomial p-value
+#' (exactPvalue <- multinomialPvalue(
+#'   G = bt$coefficientMatrix[-1, , drop = FALSE],
+#'   eta = bt$hypothesisExpectations[-1],
+#'   mu = bt$alternativeExpectations[-1],
+#'   v = bt$hypothesisDistribution,
+#'   N = bt$sampleSize
+#' ))
+#'
 #'
 #' @export
 
 multinomialPvalue <- function(G, eta, mu, v, N){
-  ## coerce G to a matrix
-  G <- as.matrix(G)
-  if (!is.numeric(G) || !is.atomic(G)){
+
+  if (!is.matrix(G) || !is.numeric(G)){
     stop("`G must be a numeric matrix")
   }
 
-  ## coerce eta to a vector
-  eta <- as.vector(eta)
-  if(!is.numeric(eta) || !is.atomic(eta)){
+
+  if(!is.numeric(eta) || !is.vector(eta)){
     stop("`eta` must be a numeric vector")
   }
 
-  ## coerce mu to a vector
-  mu <- as.vector(mu)
-  if(!is.numeric(mu) || !is.atomic(mu)){
+  if(!is.numeric(mu) || !is.vector(mu)){
     stop("`mu` must be a numeric vector")
   }
 
-  ## coerce v to a vector
-  v <- as.vector(v)
-  if(!is.numeric(v) || !is.atomic(v)){
+  if(!is.numeric(v) || !is.vector(v)){
     stop("`v` must be a numeric vector")
   }
 

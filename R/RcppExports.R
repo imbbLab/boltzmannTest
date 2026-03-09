@@ -21,8 +21,8 @@ eta_isFeasible_cpp <- function(G, eta, tol) {
     .Call(`_boltzmannTest_eta_isFeasible_cpp`, G, eta, tol)
 }
 
-startAndBars <- function(N, k) {
-    .Call(`_boltzmannTest_startAndBars`, N, k)
+starsAndBars <- function(N, k) {
+    .Call(`_boltzmannTest_starsAndBars`, N, k)
 }
 
 which_approx_equal_cpp <- function(a, b, tol, reldiff = FALSE) {

@@ -235,6 +235,33 @@ validate_boltzmannTestResult <- function(object){
 #' distribution
 #' @param ambientExpectations a numeric vector for the values of the
 #' expectations of the ambient alternative distribution
+#' @returns
+#' a list with class `boltzmannTestResult` containing the follow
+#' components
+#' \describe{
+#'  \item{statistic}{the value of \eqn{\chi^2} statistic}
+#'  \item{iDivergence}{the value of the I-divergence, a.k.a. Kullback-Leibler
+#'  divergence of the hypothesis distribution or ambient alternative
+#'  distribution to the empirical distribution}
+#'  \item{degreesOfFreedom}{ the degrees of freedom used for computing the
+#'  p-value via the \eqn{\chi^2} distribution with `degreesOfFreedom`}
+#'  \item{sampleSize}{the sample size}
+#'  \item{pValue}{the p-value}
+#'  \item{alternativeDistribution}{the empirical distribution of outcomes}
+#'  \item{alternativeExpectations}{the values of empirical expectations}
+#'  \item{hypothesisDistribution}{the hypothesis distribution of outcomes}
+#'  \item{hypothesisExpectations}{the values of hypothesized expectations}
+#'  \item{testedExpectations}{an integer vector with the indices of the tested
+#'    expectations}
+#'  \item{dataName}{name of the input data}
+#'  \item{coefficientMatrix}{an numeric matrix with the coefficient matrix}
+#'  \item{method}{a string signifying the method}
+#'  \item{ambientDistribution}{the ambient alternative distribution of outcomes
+#'    if nested hypothesis testing is performed otherwise NULL}
+#'  \item{ambientExpectations}{the values of the ambient expectations if nested
+#'    hypothesis testing is performed otherwise NULL}
+#' }
+#'
 #' @export
 boltzmannTestResult <- function(
     statistic,
