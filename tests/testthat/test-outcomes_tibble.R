@@ -134,10 +134,13 @@ test_that("input contains NA and non-finite values", {
     a = c(1, 5),
     b = factor(c("A", "B"))
   )
-  expect_warning(outcomes_tibble(withInvalidData))
+  expect_warning(
+    otInvalidData <- outcomes_tibble(withInvalidData),
+    regexp = "there are rows with non-finite and/or NA values. Removing them."
+  )
   expect_no_warning(outcomes_tibble(onlyValidData))
   expect_equal(
-    outcomes_tibble(withInvalidData),
+    otInvalidData,
     outcomes_tibble(onlyValidData)
   )
 })

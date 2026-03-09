@@ -624,8 +624,8 @@ test_that("targets are misspecified", {
 
 test_that("lhs is a matrix",{
   data <- data.frame(
-    x = stats::rnorm(10),
-    y = stats::rnorm(10),
+    x = c(rep(-1, 4), rep(0, 4), rep(1, 2)),
+    y = c(rep(-1, 2), rep(0, 4), rep(1, 4)),
     a = factor(rep(c("A", "B"), 5))
   )
   bt <- expect_no_error(boltzmann.test(cbind(x, y) ~ a, data = data))
