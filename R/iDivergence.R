@@ -47,7 +47,7 @@ iDivergence <- function(p, q, tolerance = .Machine$double.eps){
   if (length(p) != length(q)){
     stop("`p` and `q` must have the same length")
   }
-  if(!is.numeric(p) || !is.atomic(p)){
+  if(!is.numeric(p)){
     stop("`p` must be a numeric vector")
   }
   if (!is.numeric(q) || !is.atomic(q)){
@@ -65,7 +65,7 @@ iDivergence <- function(p, q, tolerance = .Machine$double.eps){
 
   }
   if(abs(sum(q) - 1) >= sqrt(tolerance)){
-    warning("`q` must sum to 1. Normalizing to 1")
+    warning("`q` should sum to 1. Normalizing to 1")
     q <- q / sum(q)
   }
 

@@ -96,7 +96,7 @@ validate_boltzmannTestResult <- function(object){
     "ambientExpectations"
   )
   if (! all(fields %in% names(object))){
-    stop("these list elements are missing",
+    stop("missing fields. These list elements are missing",
          paste(setdiff(fields, names(object)), collapse = ","))
   }
 
@@ -151,12 +151,12 @@ validate_boltzmannTestResult <- function(object){
         stop("`hypothesisExpectations` must be a numeric vector")
       }
       if (length(hypothesisDistribution) != length(alternativeDistribution)){
-        stop("`hypothesisDistribution` and `alternativeDistribution`
-             must have the same length")
+        stop("`hypothesisDistribution` and `alternativeDistribution` ",
+             "must have the same length")
       }
       if (length(hypothesisExpectations) != length(alternativeExpectations)){
-        stop("`hypothesisExpectations` and `alternativeExpectations`
-             must have the same length")
+        stop("`hypothesisExpectations` and `alternativeExpectations` ",
+             "must have the same length")
       }
       if (!is.integer(testedExpectations) ||!is.atomic(testedExpectations)){
         stop("`testedExpectations` must be a integer vector")
@@ -165,14 +165,14 @@ validate_boltzmannTestResult <- function(object){
         testedExpectations < 1) ||
         any(testedExpectations > length(hypothesisExpectations))){
         stop("`testedExpectations` must be between 1 ",
-          "and the number of hypothesis moments")
+          "and the number of hypothesis expectations")
       }
 
       if(!is.character(dataName)){
         stop("`dataName` must be a string")
       }
 
-      if (!is.matrix(coefficientMatrix)){
+      if (!is.matrix(coefficientMatrix) || !is.numeric(coefficientMatrix)){
         stop("`coefficientMatrix` must be a numeric matrix")
       }
       if (! is.null(ambientDistribution)){
@@ -180,11 +180,20 @@ validate_boltzmannTestResult <- function(object){
           if (!is.numeric(ambientDistribution)){
             stop("`ambientDistribution` must be a numeric vector")
           }
+          if (length(hypothesisDistribution) != length(ambientDistribution)){
+            stop("`hypothesisDistribution` and `ambientDistribution` ",
+                 "must have the same length")
+          }
         }
+
       }
       if (! is.null(ambientExpectations)){
         if (!is.numeric(ambientExpectations)){
           stop("`ambientExpectations` must be a numeric vector")
+        }
+        if (length(hypothesisExpectations) != length(ambientExpectations)){
+          stop("`hypothesisExpectations` and `ambientExpectations` ",
+               "must have the same length")
         }
       }
 
