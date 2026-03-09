@@ -155,7 +155,8 @@ outcomes_tibble <- function(data){
 #' @importFrom dplyr dplyr_row_slice
 #' @export
 dplyr_row_slice.outcomes_tibble <- function(object, i, ...) {
-  if (length(i) == 0) {
+
+  if (length(i) == 0 || all(i == FALSE)) {
     stop("subsetting removed all rows.")
   }
 

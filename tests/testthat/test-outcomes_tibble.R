@@ -141,10 +141,24 @@ test_that("input contains NA and non-finite values", {
     outcomes_tibble(onlyValidData)
   )
 })
+
+test_that("subsetting removed all rows.",{
+  data(nhanes)
+  outcomes <- outcomes_tibble(nhanes)
+  expect_error(
+    dplyr::filter(outcomes, RIAGENDR == "test"),
+    regexp = "subsetting removed all rows."
+  )
+  expect_error(
+   outcomes[-seq_len(NROW(outcomes)), ],
+    regexp = "subsetting removed all rows."
+  )
+})
+
 test_that("dplyr row slicing works on outcomes_tibble",{
   data(nhanes)
   outcomes <- outcomes_tibble(nhanes)
-  outcomes <- dplyr::filter(outcomes, RIAGENDR == "male")
+  outcomes <- expect_no_error(dplyr::filter(outcomes, RIAGENDR == "male"))
   expect_equal(sum(empirical(outcomes)), 1)
   expect_equal(length(empirical(outcomes)), 2551L)
   expect_equal(sampleSize(outcomes), 2551L)
@@ -156,4 +170,53 @@ test_that("subsetting with [] works on outcomes_tibble", {
   expect_equal(sum(empirical(outcomes)), 1)
   expect_equal(length(empirical(outcomes)), 96L)
   expect_equal(sampleSize(outcomes), 100L)
+})
+
+
+test_that("empirical<- value` must be a numeric vector" ,{
+  data(nhanes)
+  outcomes <- outcomes_tibble(nhanes)
+  expect_error(
+    empirical(outcomes) <- "A",
+    regexp = "value` must be a numeric vector"
+  )
+})
+
+test_that("empirical<- `value` must have the same length as `empirical`", {
+  data(nhanes)
+  outcomes <- outcomes_tibble(nhanes)
+  ## too short
+  expect_error(
+    empirical(outcomes) <- rep(0.1, 10),
+    regexp = "`value` must have the same length as `empirical`"
+  )
+  ## to long
+  expect_error(
+    empirical(outcomes) <- rep(1/10000, 10000),
+    regexp = "`value` must have the same length as `empirical`"
+  )
+})
+
+test_that("empirical<- `value` must be non-negative",{
+  data(nhanes)
+  outcomes <- outcomes_tibble(nhanes)
+  ## too short
+  value <- empirical(outcomes)
+  value[1] <- -0.1
+  expect_error(
+    empirical(outcomes) <- value,
+    regexp = "`value` must be non-negative"
+  )
+})
+
+test_that("empirical<- `value` should sum to 1. Normalizing to 1",{
+  data(nhanes)
+  outcomes <- outcomes_tibble(nhanes)
+  ## too short
+  value <- empirical(outcomes)
+  value[1] <- 1
+  expect_warning(
+    empirical(outcomes) <- value,
+    regexp = "`value` should sum to 1. Normalizing to 1"
+  )
 })
