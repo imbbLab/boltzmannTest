@@ -6,8 +6,8 @@
 #'
 #' @usage data(kidneyStones)
 #'
-#' @format A data.frame with 5620 observations of five variables (SEQN, RIAGENDR,
-#' WTMEC2YR, BMXWT, BMXHT)
+#' @format A data.frame with 5620 observations of five variables (SEQN,
+#' RIAGENDR, WTMEC2YR, BMXWT, BMXHT)
 #'
 #' @keywords dataset
 #'

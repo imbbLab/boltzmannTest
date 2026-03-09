@@ -19,7 +19,8 @@ matrix_hasFullRowRank <- function(G, tol = .Machine$double.eps){
 
 #' Check whether a vector is a feasible linear combination on the simplex
 #'
-#' Checks whether a vector `eta` = `G` `p` can be obtained by a vector `p` with p_i >= 0
+#' Checks whether a vector `eta` = `G` `p` can be obtained by a vector `p` with
+#' p_i >= 0
 #' and sum p_i = 1
 #'
 #' @param G a numeric matrix
@@ -48,19 +49,21 @@ eta_isFeasible <- function(G, eta, tol = .Machine$double.eps){
 
 #' Check which entries of two numeric vectors are (approximately) equal
 #'
-#' Checks which entries of two numeric vector are up to a difference of > `tol` equal.
-#' Note that we follow the convention of Armadillo: if the difference of two numbers
-#' x and y is smaller or equal to `tol` then the numbers are approximately equal.
+#' Checks which entries of two numeric vector are up to a difference of > `tol`
+#' equal. Note that we follow the convention of Armadillo: if the difference of
+#' two numbers x and y is smaller or equal to `tol` then the numbers are
+#' approximately equal.
 #'
 #' @param a a numeric vector
 #' @param b a numeric vector of the same length as a
 #' @param tol double value (default`.Machine$double.eps`) of the tolerance
-#' @param reldiff logical (default `FALSE`) whether to compute the relative difference `TRUE`
-#' or the absolute difference `FALSE`
-#' @returns a logical vector with elements `TRUE` if the entries are approximately equal
-#' or `FALSE` if not.
+#' @param reldiff logical (default `FALSE`) whether to compute the relative
+#' difference `TRUE` or the absolute difference `FALSE`
+#' @returns a logical vector with elements `TRUE` if the entries are a
+#' pproximately equal or `FALSE` if not.
 #' @keywords internal
-which_approx_equal <- function(a, b, tol = .Machine$double.eps, reldiff = FALSE){
+which_approx_equal <- function(
+    a, b, tol = .Machine$double.eps, reldiff = FALSE){
   a <- as.vector(a)
   if (!is.numeric(a) || !is.atomic(a)){
     stop("`a` is not a numeric vector")

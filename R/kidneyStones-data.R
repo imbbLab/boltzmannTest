@@ -1,14 +1,15 @@
 #' Kidney stone data
 #'
-#' Data from Charig et al. (1986), Table 1. Treatment A combines Nephrolithotomy/pyelolithotomy,
-#' Pyelolithotomy, Ureterolithotomy, treatment B corresponds to Percutaneous nephrolithotomy
+#' Data from Charig et al. (1986), Table 1. Treatment A combines
+#' Nephrolithotomy/pyelolithotomy, Pyelolithotomy, Ureterolithotomy,
+#' treatment B corresponds to Percutaneous nephrolithotomy
 #'
 #' @docType data
 #'
 #' @usage data(kidneyStones)
 #'
-#' @format A data.frame with 700 observations of three factor variables (stoneSize,
-#' treatment, success)
+#' @format A data.frame with 700 observations of three factor variables
+#' (stoneSize, treatment, success)
 #'
 #' @keywords dataset
 #'

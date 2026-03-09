@@ -5,19 +5,20 @@
 #' reference distribution v
 #'
 #' @param G matrix with `nrow(G)` constraints (including normalization) for
-#' `ncol(G)` entities
+#'   `ncol(G)` entities
 #' @param eta vector with one value for each row of `G`
 #' @param v reference distribution with one value for each column of `G`
-#' @param maxit single integer value (default = 10000L) for the maximimal
-#' number of iterations
+#' @param maxit single integer value (default = 10000L) for the maximimal number
+#'   of iterations
 #' @param convTolerance double value (default = `.Machine$double.eps` for the
-#' convergence tolerance
+#'   convergence tolerance
 #'
-#' @returns
-#' A list with the following entries
+#' @returns A list with the following entries
 #' \describe{
-#'  \item{p}{the I-projection of v onto the linear family described by G p = eta}
-#'  \item{converged}{a integer value, with 0 no convergence, 1 converged & conditions are met and 2 converged & conditions are not met}
+#'  \item{p}{the I-projection of v onto the linear family described by
+#'  G p = eta}
+#'  \item{converged}{a integer value, with 0 no convergence, 1 converged &
+#'  conditions are met and 2 converged & conditions are not met}
 #'  \item{iter}{the number of iterations used}
 #'  \item{error}{an error message if any}
 #' }
@@ -74,7 +75,8 @@
 #' )
 #'
 #' @export
-iProjector <- function(G, eta, v, maxit = 10000L, convTolerance = .Machine$double.eps){
+iProjector <- function(
+    G, eta, v, maxit = 10000L, convTolerance = .Machine$double.eps){
   ## coerce G to a matrix
   G <- as.matrix(G)
 

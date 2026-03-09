@@ -629,7 +629,10 @@ test_that("lhs is a matrix",{
     a = factor(rep(c("A", "B"), 5))
   )
   bt <- expect_no_error(boltzmann.test(cbind(x, y) ~ a, data = data))
-  expect_equal(rownames(bt$coefficientMatrix), c("norm","B","x:B_vs_A","y:B_vs_A"))
+  expect_equal(
+    rownames(bt$coefficientMatrix),
+    c("norm","B","x:B_vs_A","y:B_vs_A")
+  )
 })
 
 test_that("lhs is only one variable",{

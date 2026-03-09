@@ -117,7 +117,11 @@ outcomes_tibble <- function(data){
 
   }
   ## convert character variables to factors
-  data <- data.frame(as.list(data), stringsAsFactors = TRUE, check.names = FALSE)
+  data <- data.frame(
+    as.list(data),
+    stringsAsFactors = TRUE,
+    check.names = FALSE
+  )
   ## the number of rows is the sample size
   sampleSize <- nrow(data)
   ## group data by all columns

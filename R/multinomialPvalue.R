@@ -2,7 +2,8 @@
 #'
 #' Computes the exact multinomial p-value using
 #'
-#' @param G matrix with `nrow(G)` constraints (does not require normalization) for `ncol(G)` entities
+#' @param G matrix with `nrow(G)` constraints (does not require normalization)
+#' for `ncol(G)` entities
 #' @param eta vector with one value for each row of `G`
 #' @param mu vector with the empirical values
 #' @param v reference distribution with one value for each column of `G`
