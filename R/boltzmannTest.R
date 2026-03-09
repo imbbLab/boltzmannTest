@@ -1,7 +1,6 @@
 #' Generic interface for the Boltzmann Test
 #'
-#' `boltzmann.test` with `object` being an outcome_tibble is the general
-#' interface to perform the Boltzmann Test.
+#' Perform a Boltzmann Test
 #'
 #' @param outcomes an `outcomes_tibble` object
 #' @param G a numeric matrix with the function values for the outcomes in the

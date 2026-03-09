@@ -15,9 +15,28 @@ boltzmann.test(x, ...)
 \arguments{
 \item{x}{a (non-empty) numeric vector of data values}
 
-\item{...}{further arguments passed to the different methods
+\item{...}{further arguments passed to the different methods}
 
-#' @returns
+\item{y}{an optional (non-empty) numeric vector of data values}
+
+\item{mu}{a single number indicating the true value of the mean or the
+difference in means when performing a two sample test}
+
+\item{paired}{a logical indicating whether to perform a paired test (default
+FALSE)}
+
+\item{formula}{a formula either of the form `lhs` ~ `rhs`, where `lhs` is
+either a numeric or factor variable or combinations thereof (see details) and
+`rhs` is one or more factor variable used to define the groups, or of the
+form ~ `rhs` where `rhs` contains one or more numeric or factor variable
+(see details)}
+
+\item{data}{a data.frame containing the variables used in `formula`}
+
+\item{nu}{a single number or a numeric vector specifying the values of the
+expectations}
+}
+\value{
 a list with class `boltzmannTestResult` containing the follow
 components
 \describe{
@@ -43,8 +62,25 @@ components
  \item{ambientExpectations}{the values of the ambient expectations if nested
    hypothesis testing is performed otherwise NULL}
 }
-
-#' @examples
+}
+\description{
+Performs a one-, two-, and multi-groups Boltzmann Test for the
+the mean (one-group), the (paired) difference of the means (two-groups),
+means and/or prevalences of multiple observables (class formula), means
+and/or prevalences of multiple observables and multi-groups (class formula)
+}
+\details{
+The `formula` API allows to specify multi-group comparisons for one or more
+target variable specified at `lhs`. If a target variable is numeric then the
+difference of means of all groups except the first versus the mean of the
+first group is compared. if a target variable is a factor then the difference
+of the prevalence of the second (third, etc) level of that level of all
+groups except the first versus the first group is compared.If only a `rhs`
+is given, a multivariate comparison to the given `nu` is performed. If the
+target is numeric the mean is calculated. If the target is a factor the
+prevalence is calculated.
+}
+\examples{
 ## examples using the NHANES data
 data(nhanes)
 ## testing whether females are on average the same height as males
@@ -68,41 +104,6 @@ boltzmann.test(success ~ treatment, data = kidneyStones)
 
 ## testing whether the treatment success is the same in treatment A versus B
 ## and small and large stone sizes (four groups)
-boltzmann.test(success ~ treatment + stoneSize, data = kidneyStones)}
+boltzmann.test(success ~ treatment + stoneSize, data = kidneyStones)
 
-\item{y}{an optional (non-empty) numeric vector of data values}
-
-\item{mu}{a single number indicating the true value of the mean or the
-difference in means when performing a two sample test}
-
-\item{paired}{a logical indicating whether to perform a paired test (default
-FALSE)}
-
-\item{formula}{a formula either of the form `lhs` ~ `rhs`, where `lhs` is
-either a numeric or factor variable or combinations thereof (see details) and
-`rhs` is one or more factor variable used to define the groups, or of the
-form ~ `rhs` where `rhs` contains one or more numeric or factor variable
-(see details)}
-
-\item{data}{a data.frame containing the variables used in `formula`}
-
-\item{nu}{a single number or a numeric vector specifying the values of the
-expectations}
-}
-\description{
-Performs a one-, two-, and multi-groups Boltzmann Test for the
-the mean (one-group), the (paired) difference of the means (two-groups),
-means and/or prevalences of multiple observables (class formula), means
-and/or prevalences of multiple observables and multi-groups (class formula)
-}
-\details{
-The `formula` API allows to specify multi-group comparisons for one or more
-target variable specified at `lhs`. If a target variable is numeric then the
-difference of means of all groups except the first versus the mean of the
-first group is compared. if a target variable is a factor then the difference
-of the prevalence of the second (third, etc) level of that level of all
-groups except the first versus the first group is compared.If only a `rhs`
-is given, a multivariate comparison to the given `nu` is performed. If the
-target is numeric the mean is calculated. If the target is a factor the
-prevalence is calculated.
 }
