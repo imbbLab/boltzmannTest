@@ -72,7 +72,8 @@ validate_outcomes_tibble <- function(object){
     stop("`sampleSize` must be positive.")
   }
   if (sampleSize < nrow(object)){
-    stop("fewer observations (", sampleSize, ") than outcomes (", nrow(object), ")")
+    stop("fewer observations (", sampleSize,
+         ") than outcomes (", nrow(object), ")")
   }
 
 

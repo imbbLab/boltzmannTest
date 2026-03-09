@@ -112,7 +112,7 @@ test_that("fewer observations than outcomes",{
   attr(object, "sampleSize") = 9
   expect_error(
     validate_outcomes_tibble(object),
-    regexp = "fewer observations (9) than outcomes (10)"
+    regexp = "fewer observations \\(9\\) than outcomes \\(10\\)"
   )
 })
 
