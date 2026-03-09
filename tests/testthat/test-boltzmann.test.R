@@ -701,12 +701,123 @@ test_that("categorical target .+ has only one level",{
 test_that("in function `expectations` target variable is numeric",{
   data(nhanes)
   outcomes <- outcomes_tibble(nhanes)
-
   targetVar <- "BMXWT"
-  groupLevels <- levels(outcomes$RIAGENDR)
-  expectation <- expect_no_error(
-    expectations()
+
+  ## single mean
+  actualExpectation <- expect_no_error(
+    expectations(
+      outcomes = outcomes,
+      targetVar = targetVar,
+      groupLevels = NULL,
+      prevalences = NULL
+    )
   )
+  expectedExpectation <- list(
+    BMXWT = outcomes$BMXWT
+  )
+
+
+  expect_equal(actualExpectation, expectedExpectation)
+
+  ## comparison between groups
+
+  outcomes$group <- outcomes$RIAGENDR
+  groupLevels <- levels(outcomes$group)
+
+  prevalence <- lapply(
+    groupLevels,
+    function(group){
+      ifelse(outcomes$group == group, 1, 0 )
+    }
+  )
+  names(prevalence) <- groupLevels
+  prevalence <- do.call(rbind, prevalence)
+  prevalences <- (prevalence %*% empirical(outcomes))[, 1]
+
+  actualExpectation <- expect_no_error(
+    expectations(
+      outcomes = outcomes,
+      targetVar = targetVar,
+      groupLevels = groupLevels,
+      prevalences = prevalences
+    )
+  )
+  expectedExpectation <- list(
+    "BMXWT:female_vs_male" = as.vector(
+      ifelse(
+        outcomes$group == "female",
+        outcomes$BMXWT,
+        -outcomes$BMXWT
+      ) / prevalences[outcomes$group]
+    )
+  )
+  expect_equal(actualExpectation, expectedExpectation)
+
+
+
+})
+
+test_that("in function `expectations` target variable is a factor",{
+  data(kidneyStones)
+  outcomes <- outcomes_tibble(kidneyStones)
+  targetVar <- "success"
+
+  ## single prevalence
+  actualExpectation <- expect_no_error(
+    expectations(
+      outcomes = outcomes,
+      targetVar = targetVar,
+      groupLevels = NULL,
+      prevalences = NULL
+    )
+  )
+  expectedExpectation <- list(
+    list(
+      "success_yes" = as.numeric((outcomes$success == "yes"))
+    )
+  )
+  expect_equal(actualExpectation, expectedExpectation)
+
+
+  ## comparison between groups
+
+  outcomes$group <- outcomes$treatment
+  groupLevels <- levels(outcomes$group)
+
+  prevalence <- lapply(
+    groupLevels,
+    function(group){
+      ifelse(outcomes$group == group, 1, 0 )
+    }
+  )
+  names(prevalence) <- groupLevels
+  prevalence <- do.call(rbind, prevalence)
+  prevalences <- (prevalence %*% empirical(outcomes))[, 1]
+
+  actualExpectation <- expect_no_error(
+    expectations(
+      outcomes = outcomes,
+      targetVar = targetVar,
+      groupLevels = groupLevels,
+      prevalences = prevalences
+    )
+  )
+  expectedExpectation <- list(
+
+    matrix(
+      ifelse(
+        outcomes$group == "B",
+        (outcomes$success == "yes"),
+        -(outcomes$success == "yes")
+      ) / prevalences[outcomes$group],
+      nrow = 1,
+      dimnames = list("success_yes:B_vs_A")
+    )
+
+  )
+  expect_equal(actualExpectation, expectedExpectation)
+
+
 
 })
 
