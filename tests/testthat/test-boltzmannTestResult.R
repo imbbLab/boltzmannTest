@@ -73,16 +73,16 @@ test_that("`statistic` must be a single numeric value",{
     regexp = "`statistic` must be a single numeric value"
   )
   ## statistic is a list
-  bt$iDivergence <- list(1)
+  bt$statistic  <- list(1)
   expect_error(
     validate_boltzmannTestResult(bt),
-    regexp = "`iDivergence` must be a single numeric value"
+    regexp = "`statistic` must be a single numeric value"
   )
   ## statistic is a data.frame
-  bt$iDivergence <- data.frame(1)
+  bt$statistic  <- data.frame(1)
   expect_error(
     validate_boltzmannTestResult(bt),
-    regexp = "`iDivergence` must be a single numeric value"
+    regexp = "`statistic` must be a single numeric value"
   )
 
 })
