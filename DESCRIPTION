@@ -19,11 +19,11 @@ License: GPL (>= 2)
 URL: https://gitlab.uni-marburg.de/fb20/ag-chung/boltzmanntest
 BugReports: https://gitlab.uni-marburg.de/fb20/ag-chung/boltzmanntest/-/issues
 Imports:
-  Rcpp (>= 1.1.0),
-  tibble,
-  dplyr,
-  stats,
-  methods
+    Rcpp,
+    tibble,
+    dplyr,
+    stats,
+    methods
 LinkingTo:
   Rcpp, 
   RcppArmadillo
