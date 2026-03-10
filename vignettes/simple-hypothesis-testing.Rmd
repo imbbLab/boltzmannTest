@@ -1,0 +1,40 @@
+---
+title: "Tesing simple hypothesis using the Boltzmann Test"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tesing simple hypothesis using the Boltzmann Test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(boltzmannTest)
+```
+
+
+## One-sample test of the mean
+
+## Two-sample test of the mean
+### paired
+### unpaired
+
+
+## Testing the means of more than two groups
+
+
+## One-sample test of a rate
+
+## Two-sample test of a rate
+### paired
+### unpaired
+
+## Testing the rates of more than two groups
+
+
