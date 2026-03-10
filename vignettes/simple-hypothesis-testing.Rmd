@@ -17,9 +17,83 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(boltzmannTest)
 ```
+## Introduction
+Given is a `data.frame` of $N$ observations and at least one variable. The
+variable(s) can be `numeric` (`double` or `integer`) or categorical (`factor`).
+The Boltzmann Test tests a (point) hypothesis about the expectation(s) 
+$\mathbb{E}[g_i(X)]$ of some functions $g_i(X)$, where $X$ is one of the $N$ 
+observations. 
 
+Here, we restrict ourselves to the observed outcomes $\Omega$ rather than
+all possible outcomes. With this restriction we can compute expectations
+on observed outcomes only
+$$
+  \mathbb{E}[g(X)] = \sum_{x \in \Omega} p(x)~g(x)~,
+$$
+where $p(x)$ is the probability for outcome $x \in \Omega$.
 
+We are given the `data.frame` `X`
+```{r, exampleData}
+X <- data.frame(
+  y = c(rep(-1, 40), rep(0, 40), rep(1, 20)),
+  s = rep(c("A", "B"), 50),
+  stringsAsFactors = TRUE
+)
+```
+with 100 observations for a `numeric` variable called `y` and a `factor` variable
+called `s` with labels `A` and `B`.
+
+We can condense the observations of this data set to unique outcomes using 
+the function `outcomes_tibble()` 
+```{r exampleDataToOutcomes}
+(outcomes <- outcomes_tibble(X))
+```
+which reduces the data `X` from 100 observations to only 6 outcomes. An 
+`outcomes_tibble` object is a `tibble` that stores only the unique outcomes 
+plus two attributes:
+
+- `empirical` the empirical relative frequencies of an outcome, i.e.
+one frequency per row in the `outcomes_tibble`
+- `sampleSize` the sample size
+
+It is straightforward to compute the empirical or sample averages for any 
+real-valued function of an outcome:
+$$
+  \mathbb{E}[g(X)] = \sum_{x \in \Omega} f(x)~g(x)~,
+$$
+where $f(x)$ corresponds to the empirical frequency of outcome $x$.
+
+The Boltzmann Test framework fixes the inference method while leaving a lot
+of room for *what to infer* via the choice of the functions $g(X)$. Here, are
+some examples (using the data `X`)
+
+- $g(y, s) = 1$ for normalization
+- $g(y, s) = y$ for the mean of the numeric variable $y$
+- $g(y, s) = \delta(s, \text{A})$ for the rate, i.e. frequency, of the label `A`
+in the `factor` variable $s$
+
+But also more complex relationships can be used, e.g. the
+
+- **variance** of $y$
+  $$
+  g(y, s) = (y - \bar{y})^2
+  $$
+  with parameter $\bar{y} = \mathbb{E}[g(y, s) = y]$, which can be understood
+  as a *structural* expectation: required for the computation of the variance
+  but possibly not tested
+- **difference of means** of the group $s = \text{B}$ versus $s = \text{A}$
+  $$
+  g(y, s) = \left[
+    \frac{\delta(s, \text{B})}{q} 
+    - \frac{\delta(s, \text{A})}{1 - q} 
+  \right]~y
+  $$
+  with parameter $q = \mathbb{E}[g(y_s) =\delta(s, \text{B})]$ as 
+  *structural* expectation
+  
 ## One-sample test of the mean
+
+
 
 ## Two-sample test of the mean
 ### paired
