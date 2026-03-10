@@ -409,7 +409,7 @@ expectations <- function(
               0
             )
           )
-          names(dt) = paste0(
+          names(dt) <- paste0(
             targetVar, "_", targetVarLevel
           )
           dt
@@ -441,7 +441,7 @@ expectations <- function(
   } else{
     if (is.null(groupLevels)){
       dt <- list(outcomes[[targetVar]])
-      names(dt) = targetVar
+      names(dt) <- targetVar
       dt
     } else{
       dt <-lapply(
